@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Input, Typography, Divider } from 'antd';
+import { Button, Form, Input, Typography, Divider, message } from 'antd';
 import {
   GoogleOutlined,
   FacebookFilled,
@@ -9,6 +9,38 @@ import {
 const { Title, Text, Link } = Typography;
 
 const SignUp: React.FC = () => {
+  // Hàm onFinish gọi API đăng ký
+  const onFinish = async (values: any) => {
+    try {
+      const response = await fetch("http://localhost:2222/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.error(`Registration failed: ${data.message}`);
+        return;
+      }
+
+      message.success("Registration successful!");
+      console.log("Registration success:", data);
+      
+      // window.location.href = '/login';
+    } catch (error) {
+      message.error("Error during registration, please try again.");
+      console.error("Error during registration:", error);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', padding: 40 }}>
       {/* Left side content */}
@@ -25,15 +57,23 @@ const SignUp: React.FC = () => {
       </div>
 
       {/* Right side form */}
-      <div style={{ flex: 1, maxWidth: 700,  margin: 'auto' }}>
+      <div style={{ flex: 1, maxWidth: 700, margin: 'auto' }}>
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
-          Sign up (Free)
+          Sign up 
         </Title>
 
         <Form
           layout="vertical"
-          onFinish={(values) => console.log('Submitted:', values)}
+          onFinish={onFinish}  
         >
+          <Form.Item
+            label="Full Name"
+            name="name"
+            rules={[{ required: true, message: 'Please enter your full name' }]}
+          >
+            <Input placeholder="John Doe" />
+          </Form.Item>
+
           <Form.Item
             label="Email"
             name="email"
@@ -58,18 +98,14 @@ const SignUp: React.FC = () => {
 
           <Form.Item style={{ marginTop: 24 }}>
             <Button type="primary" htmlType="submit" block>
-              Sign up (Free)
+              Sign up 
             </Button>
           </Form.Item>
         </Form>
 
-        <Divider>Or continue with</Divider>
+       
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-          <Button icon={<GoogleOutlined />} shape="circle" />
-          <Button icon={<FacebookFilled />} shape="circle" />
-          <Button icon={<AppleFilled />} shape="circle" />
-        </div>
+        
       </div>
     </div>
   );

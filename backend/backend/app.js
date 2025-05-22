@@ -26,5 +26,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Đã xảy ra lỗi server!' });
 });
 
-const PORT = 2211;
+const PORT = 2222;
 app.listen(PORT, () => console.log(`Server đang chạy trên port ${PORT}`));

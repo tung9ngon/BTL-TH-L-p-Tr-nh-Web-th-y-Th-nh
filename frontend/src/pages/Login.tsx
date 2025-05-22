@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Checkbox, Divider, Form, Input, Typography } from 'antd';
+import { Button, Checkbox, Divider, Form, Input, Typography, message } from 'antd';
 import {
   GoogleOutlined,
   FacebookFilled,
@@ -7,6 +7,38 @@ import {
 } from '@ant-design/icons';
 
 const { Title, Text, Link } = Typography;
+
+const onFinish = async (values: any) => {
+  try {
+    const response = await fetch("http://localhost:2222/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      message.error(`Login failed: ${data.message || 'Unknown error'}`);
+      return;
+    }
+
+    message.success("Login successful!");
+    console.log("Login success:", data);
+    // Ví dụ redirect sau login thành công:
+    // window.location.href = '/dashboard';
+    window.location.href = '/homepage';
+
+  } catch (error) {
+    message.error("Error during login, please try again.");
+    console.error("Error during login:", error);
+  }
+};
 
 const Login: React.FC = () => {
   return (
@@ -23,7 +55,7 @@ const Login: React.FC = () => {
         }}
       >
         <Title level={2} style={{ fontWeight: 'bold' }}>
-          Wellcome back,
+          Welcome back,
         </Title>
         <Text>
           Launch your website in seconds. Don’t have an account?{' '}
@@ -49,12 +81,12 @@ const Login: React.FC = () => {
         }}
       >
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
-          Login for Internships
+          Login to your account
         </Title>
 
         <Form
           layout="vertical"
-          onFinish={(values) => console.log('Login submitted:', values)}
+          onFinish={onFinish}  
         >
           <Form.Item
             label="Email"
@@ -101,13 +133,9 @@ const Login: React.FC = () => {
           Don’t have an account? <Link href="/signup">Sign up</Link>
         </Text>
 
-        <Divider>Or continue with</Divider>
+        
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-          <Button icon={<GoogleOutlined />} shape="circle" />
-          <Button icon={<FacebookFilled />} shape="circle" />
-          <Button icon={<AppleFilled />} shape="circle" />
-        </div>
+        
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
     }
 
     // Kiểm tra mật khẩu
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await (password, user.password);
     
     // Log kết quả so sánh mật khẩu
     console.log("Password comparison result:", isValidPassword);
