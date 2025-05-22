@@ -5,16 +5,40 @@ import {
   FacebookFilled,
   AppleFilled,
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text, Link } = Typography;
 
 const SignUp: React.FC = () => {
+  const navigate = useNavigate();
+
+  // Xử lý khi form submit thành công
+  const handleFinish = (values: any) => {
+    console.log('Submitted:', values);
+
+    // Giả lập delay hoặc gọi API -> Sau đó điều hướng
+    setTimeout(() => {
+      navigate('/success');
+    }, 1000); // giả lập xử lý async
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', padding: 40 }}>
-      {/* Left side content */}
-      <div style={{ flex: 1, paddingRight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Title level={2} style={{ fontWeight: 'bold' }}>Wellcome back,</Title>
-        <Text>Launch your website in seconds. Already have an account?{' '}
+      {/* Left content */}
+      <div
+        style={{
+          flex: 1,
+          paddingRight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <Title level={2} style={{ fontWeight: 'bold' }}>
+          Welcome back,
+        </Title>
+        <Text>
+          Launch your website in seconds. Already have an account?{' '}
           <Link href="/login">Log in here.</Link>
         </Text>
         <img
@@ -24,20 +48,23 @@ const SignUp: React.FC = () => {
         />
       </div>
 
-      {/* Right side form */}
-      <div style={{ flex: 1, maxWidth: 700,  margin: 'auto' }}>
+      {/* Right form */}
+      <div style={{ flex: 1, maxWidth: 700, margin: 'auto' }}>
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
           Sign up (Free)
         </Title>
 
-        <Form
-          layout="vertical"
-          onFinish={(values) => console.log('Submitted:', values)}
-        >
+        <Form layout="vertical" onFinish={handleFinish}>
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
+            rules={[
+              {
+                required: true,
+                type: 'email',
+                message: 'Please enter a valid email',
+              },
+            ]}
           >
             <Input placeholder="example@example.com" />
           </Form.Item>
@@ -45,7 +72,13 @@ const SignUp: React.FC = () => {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, min: 8, message: 'At least 8 alphanumeric characters' }]}
+            rules={[
+              {
+                required: true,
+                min: 8,
+                message: 'At least 8 alphanumeric characters',
+              },
+            ]}
           >
             <Input.Password placeholder="At least 8 alphanumeric characters" />
           </Form.Item>

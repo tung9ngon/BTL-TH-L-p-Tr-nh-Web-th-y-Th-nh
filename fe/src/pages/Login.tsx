@@ -49,7 +49,7 @@ const Login: React.FC = () => {
         }}
       >
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
-          Login for Internships
+          Login to your account
         </Title>
 
         <Form
