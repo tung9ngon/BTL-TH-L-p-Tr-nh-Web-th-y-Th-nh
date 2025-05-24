@@ -12,7 +12,7 @@ const SignUp: React.FC = () => {
   // Hàm onFinish gọi API đăng ký
   const onFinish = async (values: any) => {
     try {
-      const response = await fetch("http://localhost:2222/api/users/register", {
+      const response = await fetch("http://localhost:3333/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -20,6 +20,7 @@ const SignUp: React.FC = () => {
         body: JSON.stringify({
           name: values.name,
           email: values.email,
+          phone:values.phone,
           password: values.password,
         }),
       });
@@ -72,6 +73,14 @@ const SignUp: React.FC = () => {
             rules={[{ required: true, message: 'Please enter your full name' }]}
           >
             <Input placeholder="John Doe" />
+          </Form.Item>
+
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[{ required: true, message: 'Please enter your phone' }]}
+          >
+            <Input placeholder="012345678012345678" />
           </Form.Item>
 
           <Form.Item

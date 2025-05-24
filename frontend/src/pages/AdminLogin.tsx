@@ -1,12 +1,41 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox, Typography, Card } from 'antd';
+import { message } from 'antd';
 
 const { Title, Link } = Typography;
 
 const AdminLogin: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
-  };
+  const onFinish = async (values: any) => {
+  try {
+    const response = await fetch("http://localhost:3333/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      message.error(`Login failed: ${data.message || 'Unknown error'}`);
+      return;
+    }
+
+    message.success("Login successful!");
+    console.log("Login success:", data);
+    // Ví dụ redirect sau login thành công:
+    // window.location.href = '/dashboard';
+    window.location.href = '/homepage';
+
+  } catch (error) {
+    message.error("Error during login, please try again.");
+    console.error("Error during login:", error);
+  }
+};
 
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
