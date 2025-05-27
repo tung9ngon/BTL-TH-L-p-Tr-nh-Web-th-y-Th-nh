@@ -7,6 +7,10 @@ import AdminDashboard from '../src/pages/AdminDashboard';
 import HomePage from '../src/pages/HomePage';
 import AdminLogin from '../src/pages/AdminLogin';
 import Login from '../src/pages/Login';
+import BookingHistory from '../src/component/BookingHistory';
+import FieldDetailPage from '../src/pages/FieldDetailPage';
+import ManageFields from "../src/pages/ManageFields";
+import ManagePayment from '../src/pages/ManagePayment';
 
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
@@ -26,11 +30,15 @@ export default function App() {
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/success" element={<BookingSuccess />} />
-            <Route path="/booking" element={<UserBookingPage />} />
+            <Route path="/booking/:fieldId" element={<UserBookingPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/home" element={<HomePage />} />
+            <Route path="/field/:fieldId" element={<FieldDetailPage />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/login" element={<Login />} />
+            <Route path="admin/fields" element={<ManageFields />} />
+            <Route path="/admin/payments" element={<ManagePayment />} />
+            {/* <Route path="/booking-history" element={<BookingHistory/>} /> */}
             {/* Add more routes as needed */}
           </Routes>
         </Content>
