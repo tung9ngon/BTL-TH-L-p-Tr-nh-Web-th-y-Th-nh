@@ -11,6 +11,8 @@ import BookingHistory from '../src/component/BookingHistory';
 import FieldDetailPage from '../src/pages/FieldDetailPage';
 import ManageFields from "../src/pages/ManageFields";
 import ManagePayment from '../src/pages/ManagePayment';
+import CommentPage from '../src/pages/CommentPage';
+import ContentPage from './pages/ContentPage';
 
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
@@ -27,7 +29,7 @@ export default function App() {
 
         <Content style={{ padding: '24px 50px' }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/content" />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/success" element={<BookingSuccess />} />
             <Route path="/booking/:fieldId" element={<UserBookingPage />} />
@@ -38,6 +40,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="admin/fields" element={<ManageFields />} />
             <Route path="/admin/payments" element={<ManagePayment />} />
+            <Route path="/comments" element={<CommentPage />} />
+            <Route path="/content" element={<ContentPage />} />
             {/* <Route path="/booking-history" element={<BookingHistory/>} /> */}
             {/* Add more routes as needed */}
           </Routes>

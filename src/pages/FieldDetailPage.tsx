@@ -67,8 +67,8 @@ const FieldDetailPage: React.FC = () => {
   const fieldData: FootballField = {
     id: fieldId || 'field-1',
     title: `Sân bóng ${fieldId === 'field-1' ? 'KARA Sport khu đô thị Hòa Quý' : 
-            fieldId === 'field-2' ? 'Đại Học Y Hà Nội' : 
-            fieldId === 'field-3' ? 'Hồng Quang' : 'Phú Thọ'}`,
+            fieldId === 'field-2' ? 'Sân cỏ nhân tạo Đại học Bách Khoa' : 
+            fieldId === 'field-3' ? 'Sân bóng Hồng Hà' : 'Phú Thọ'}`,
     location: fieldId === 'field-1' ? 'Quận Ngũ Hành Sơn - Đà Nẵng' : 
               fieldId === 'field-2' ? 'Quận Đống Đa - Hà Nội' : 
               fieldId === 'field-3' ? 'Quận Hoàng Mai - Hà Nội' : 'Quận Tân Bình - Hồ Chí Minh',

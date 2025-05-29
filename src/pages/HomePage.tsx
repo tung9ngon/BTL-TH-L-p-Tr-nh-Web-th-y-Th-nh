@@ -31,6 +31,8 @@ import {
   LogoutOutlined,
   EditOutlined,
   ProfileOutlined,
+  InfoCircleOutlined,
+  StarFilled,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -495,7 +497,9 @@ const HomePage: React.FC = () => {
   const handleCityClick = (city: string) => {
     setSelectedCity(city);
   };
-
+  const gotoComments = () => {
+    navigate('/comments')
+  };  
   const renderContactInfo = () => {
     if (!selectedCity) return null;
     
@@ -531,6 +535,8 @@ const HomePage: React.FC = () => {
         <Menu mode="horizontal" defaultSelectedKeys={['home']} style={{ flex: 1, borderBottom: 'none' }}>
           <Menu.Item key="home" icon={<HomeOutlined />}>Trang chủ</Menu.Item>
           <Menu.Item key="news" icon={<ReadOutlined />}>Tin tức</Menu.Item>
+          <Menu.Item key="reviews" icon={<StarFilled />} onClick={gotoComments}>Đánh giá</Menu.Item>
+          <Menu.Item key="about" icon={<InfoCircleOutlined />}>Giới thiệu</Menu.Item>
         </Menu>
         <Space size="middle">
           <Badge count={3}>
@@ -625,7 +631,6 @@ const HomePage: React.FC = () => {
               `Có ${filteredFields.length} sân bóng đá phù hợp` : 
               'Không tìm thấy sân bóng phù hợp'}
           </Title>
-          <Text>Sắp xếp theo: <a>Phổ biến</a> | <a>Đánh giá</a> | <a>Giá</a></Text>
         </div>
 
         <Divider orientation="left">
