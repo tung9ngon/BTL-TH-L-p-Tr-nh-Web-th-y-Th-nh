@@ -13,6 +13,10 @@ import ManageFields from "../src/pages/ManageFields";
 import ManagePayment from '../src/pages/ManagePayment';
 import CommentPage from '../src/pages/CommentPage';
 import ContentPage from './pages/ContentPage';
+import ContactPage from './pages/ContactPage';
+import PaymentPage from './pages/PaymentPage';
+import ProfilePage from './pages/ProfilePage';
+import EditProfile from './pages/EditProfile';
 
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
@@ -42,6 +46,10 @@ export default function App() {
             <Route path="/admin/payments" element={<ManagePayment />} />
             <Route path="/comments" element={<CommentPage />} />
             <Route path="/content" element={<ContentPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
             {/* <Route path="/booking-history" element={<BookingHistory/>} /> */}
             {/* Add more routes as needed */}
           </Routes>

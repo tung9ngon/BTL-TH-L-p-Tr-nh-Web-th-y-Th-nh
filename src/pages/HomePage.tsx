@@ -33,6 +33,7 @@ import {
   ProfileOutlined,
   InfoCircleOutlined,
   StarFilled,
+  BarChartOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -443,9 +444,12 @@ const HomePage: React.FC = () => {
       </Menu.Item>
       <Menu.Item key="edit" icon={<EditOutlined />}>
         Chỉnh sửa trang cá nhân
+      </Menu.Item>  
+      <Menu.Item key="bill" icon={<BarChartOutlined />}>
+        Lịch sử giao dịch
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />}>
+      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={() => navigate('/login')}>
         Đăng xuất
       </Menu.Item>
     </Menu>
