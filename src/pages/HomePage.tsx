@@ -439,13 +439,10 @@ const HomePage: React.FC = () => {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="profile" icon={<ProfileOutlined />}>
+      <Menu.Item key="profile" icon={<ProfileOutlined />} onClick={() => navigate('/profile')}>
         Xem thông tin cá nhân
-      </Menu.Item>
-      <Menu.Item key="edit" icon={<EditOutlined />}>
-        Chỉnh sửa trang cá nhân
       </Menu.Item>  
-      <Menu.Item key="bill" icon={<BarChartOutlined />}>
+      <Menu.Item key="bill" icon={<BarChartOutlined />} onClick={() => navigate('/payment')}>
         Lịch sử giao dịch
       </Menu.Item>
       <Menu.Divider />

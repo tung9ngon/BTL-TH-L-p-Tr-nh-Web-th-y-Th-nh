@@ -5,7 +5,6 @@ import {
   DashboardOutlined,
   FieldTimeOutlined,
   TeamOutlined,
-  MessageOutlined,
   SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
@@ -44,9 +43,7 @@ const MenuLeft: React.FC = () => {
         <Menu.Item key="3" icon={<TeamOutlined />} onClick={() => navigate("/admin/payments")}>
           Quản lý đơn đặt
         </Menu.Item>
-        <Menu.Item key="4" icon={<MessageOutlined />} onClick={() => navigate("/admin/messages")}>
-          Tin nhắn
-        </Menu.Item>
+
       </Menu>
 
       {/* Divider và các mục ở dưới cùng */}

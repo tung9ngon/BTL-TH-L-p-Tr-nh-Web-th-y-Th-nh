@@ -24,14 +24,21 @@ const { Title } = Typography;
 export default function App() {
   return (
     <Router>
-      <Layout style={{ minHeight: '100vh' }}>
-        <Header style={{ display: 'flex', alignItems: 'center' }}>
+      <Layout style={{ minHeight: '100vh', overflowX: 'hidden' }}>
+        <Header style={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          width: '100%'
+        }}>
           <Title level={3} style={{ color: 'white', margin: 0 }}>
             ⚽ Football Booking
           </Title>
         </Header>
 
-        <Content style={{ padding: '24px 50px' }}>
+        <Content style={{ padding: '0', margin: 0 }}>
           <Routes>
             <Route path="/" element={<Navigate to="/content" />} />
             <Route path="/signup" element={<SignUp />} />
@@ -50,14 +57,10 @@ export default function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/edit-profile" element={<EditProfile />} />
-            {/* <Route path="/booking-history" element={<BookingHistory/>} /> */}
-            {/* Add more routes as needed */}
           </Routes>
         </Content>
 
-        <Footer style={{ textAlign: 'center' }}>
-          ©2025 Football Field Booking App
-        </Footer>
+
       </Layout>
     </Router>
   );

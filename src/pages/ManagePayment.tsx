@@ -134,7 +134,7 @@ const ManagePayment: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={220} style={{ background: "#fff" }}>
+      <Sider width={200} style={{ background: "#fff" }}>
         <MenuLeft />
       </Sider>
       <Layout style={{ padding: "24px" }}>

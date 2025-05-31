@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Row, Col, Card, List, Form, Input, Button, Rate, Typography, message } from 'antd';
-import { UserOutlined, CommentOutlined } from '@ant-design/icons';
+import { Row, Col, Card, List, Form, Input, Button, Rate, Typography, message, Layout, Menu, Avatar, Badge, Dropdown, Space } from 'antd';
+import { UserOutlined, CommentOutlined, HomeOutlined, ReadOutlined, StarFilled, InfoCircleOutlined, BellOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
@@ -34,8 +34,43 @@ const CommentPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <Row gutter={[24, 24]}>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Layout.Header style={{
+        background: '#fff',
+        padding: '0 20px',
+        display: 'flex',
+        alignItems: 'center',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        height: 64,
+        lineHeight: '64px',
+        }}>
+        <div style={{ fontWeight: 'bold', fontSize: 24, color: '#1890ff', marginRight: 24 }}>
+          Football Booking
+        </div>
+        <Menu 
+          mode="horizontal" 
+          defaultSelectedKeys={['home']} 
+          style={{ flex: 1, borderBottom: 'none' }}
+        >
+          <Menu.Item key="home" icon={<HomeOutlined />}>Trang chủ</Menu.Item>
+          <Menu.Item key="news" icon={<ReadOutlined />}>Tin tức</Menu.Item>
+          <Menu.Item key="reviews" icon={<StarFilled />}>Đánh giá</Menu.Item>
+          <Menu.Item key="about" icon={<InfoCircleOutlined />}>Giới thiệu</Menu.Item>
+        </Menu>
+        <Space size="middle">
+          <Badge count={3}>
+            <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
+          </Badge>
+          <Dropdown overlay={<div />} trigger={['click']}>
+            <Avatar 
+              icon={<UserOutlined />} 
+              style={{ cursor: 'pointer' }}
+            />
+          </Dropdown>
+        </Space>
+      </Layout.Header>
+      <Layout.Content style={{ padding: 24 }}>
+        <Row gutter={[24, 24]}>
         <Col xs={24} md={12}>
           <Card title="💬 Đánh giá của người dùng" bordered={false}>
             <List
@@ -92,7 +127,8 @@ const CommentPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+      </Layout.Content>
+    </Layout>
   );
 };
 

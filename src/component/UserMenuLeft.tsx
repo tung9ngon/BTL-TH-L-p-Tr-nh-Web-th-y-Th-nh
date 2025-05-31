@@ -5,33 +5,35 @@ import {
   CreditCardOutlined, 
   UserOutlined, 
   LogoutOutlined,
-  SettingOutlined 
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Sider } = Layout;
 const { Text } = Typography;
 
 interface UserMenuLeftProps {
   collapsed: boolean;
-  currentPath: string;
 }
 
-const UserMenuLeft: React.FC<UserMenuLeftProps> = ({ collapsed, currentPath }) => {
+const UserMenuLeft: React.FC<UserMenuLeftProps> = ({ collapsed }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Lấy pathname hiện tại và loại bỏ '/' ở đầu nếu có
+  const currentPath = location.pathname.replace(/^\//, '');
 
   const items = [
     {
       key: 'home',
       icon: <HomeOutlined />,
       label: 'Trang chủ',
-      onClick: () => navigate('/')
+      onClick: () => navigate('/home')
     },
     {
-      key: 'payments',
+      key: 'payment',
       icon: <CreditCardOutlined />,
       label: 'Thanh toán',
-      onClick: () => navigate('/payments')
+      onClick: () => navigate('/payment')
     },
     {
       key: 'profile',
@@ -39,31 +41,25 @@ const UserMenuLeft: React.FC<UserMenuLeftProps> = ({ collapsed, currentPath }) =
       label: 'Hồ sơ',
       onClick: () => navigate('/profile')
     },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Cài đặt',
-      onClick: () => navigate('/settings')
-    },
+
   ];
 
   return (
     <Sider 
-      width={250}
+      width={200}
       collapsed={collapsed}
       collapsedWidth={80}
       style={{
         background: '#fff',
         boxShadow: '2px 0 8px 0 rgba(29, 35, 41, 0.05)',
         overflow: 'auto',
-        height: '100vh',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
+        height: '96.5vh',
       }}
     >
-      <div style={{ padding: collapsed ? '16px 8px' : '16px 24px', textAlign: collapsed ? 'center' : 'left' }}>
+      <div style={{ 
+        padding: collapsed ? '16px 8px' : '16px 24px', 
+        textAlign: collapsed ? 'center' : 'left',
+      }}>
         <Text strong style={{ color: '#1890ff', fontSize: collapsed ? '16px' : '18px' }}>
           {collapsed ? 'FB' : 'Football Booking'}
         </Text>
@@ -74,13 +70,16 @@ const UserMenuLeft: React.FC<UserMenuLeftProps> = ({ collapsed, currentPath }) =
       <Menu
         mode="inline"
         selectedKeys={[currentPath]}
-        style={{ borderRight: 0 }}
+        style={{ borderRight: 0, height: 'calc(100% - 145px)', overflowY: 'auto' }}
         items={items}
       />
 
-      <Divider style={{ margin: 0 }} />
-
-      <div style={{ padding: '16px', position: 'absolute', bottom: 0, width: '100%' }}>
+      <div style={{ 
+        padding: '16px', 
+        width: '100%',
+        background: '#fff',
+        borderTop: '1px solid #f0f0f0'
+      }}>
         <Button 
           type="text" 
           danger 

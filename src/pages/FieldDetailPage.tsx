@@ -274,8 +274,9 @@ const FieldDetailPage: React.FC = () => {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="profile">Thông tin cá nhân</Menu.Item>
-      <Menu.Item key="logout">Đăng xuất</Menu.Item>
+      <Menu.Item key="profile" onClick={() => navigate(`/profile`)}>Thông tin cá nhân</Menu.Item>
+      <Menu.Item key="history" onClick={() => navigate(`/payment`)}>Lịch sử giao dịch</Menu.Item>
+      <Menu.Item key="logout" onClick={() => navigate(`/login`)}>Đăng xuất</Menu.Item>
     </Menu>
   );
 
@@ -346,9 +347,9 @@ const FieldDetailPage: React.FC = () => {
           defaultSelectedKeys={['home']} 
           style={{ flex: 1, borderBottom: 'none' }}
         >
-          <Menu.Item key="home" icon={<HomeOutlined />}>Trang chủ</Menu.Item>
+          <Menu.Item key="home" icon={<HomeOutlined />} onClick={() => navigate('/home')}>Trang chủ</Menu.Item>
           <Menu.Item key="news" icon={<ReadOutlined />}>Tin tức</Menu.Item>
-          <Menu.Item key="reviews" icon={<StarFilled />}>Đánh giá</Menu.Item>
+          <Menu.Item key="reviews" icon={<StarFilled />} onClick={() => navigate(`/comments`)}>Đánh giá</Menu.Item>
           <Menu.Item key="about" icon={<InfoCircleOutlined />}>Giới thiệu</Menu.Item>
         </Menu>
         <Space size="middle">

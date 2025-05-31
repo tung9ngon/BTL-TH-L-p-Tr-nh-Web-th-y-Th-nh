@@ -1,104 +1,152 @@
-import React from 'react';
-import { Card, Avatar, Typography, Row, Col, Divider, Button } from 'antd';
-import { UserOutlined, EditOutlined, HomeOutlined, CreditCardOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import {
+  Layout, Card, Typography, Row, Col, Input,
+  Radio, Button, Upload, message, Avatar
+} from 'antd';
+import { UserOutlined, UploadOutlined } from '@ant-design/icons';
+import UserMenuLeft from '../component/UserMenuLeft';
 
+const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const ProfilePage = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | ArrayBuffer | null>(null);
+  const [backgroundUrl, setBackgroundUrl] = useState<string | ArrayBuffer | null>(null);
+
+  interface ImageUploadSetter {
+    (value: string | ArrayBuffer | null): void;
+  }
+
+  const handleImageUpload = (file: File, setter: ImageUploadSetter): boolean => {
+    const reader = new FileReader();
+    reader.onload = () => setter(reader.result);
+    reader.readAsDataURL(file);
+    return false;
+  };
+
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f5f5f5' }}>
-      <Title level={2} style={{ color: '#1890ff' }}>Trang thông tin cá nhân</Title>
-      
-      <Row gutter={16}>
-        <Col span={24} md={8}>
-          <Card 
-            title="HotelBooking" 
+    <Layout style={{ minHeight: '100vh' }}>
+      <UserMenuLeft collapsed={collapsed} />
+
+      <Layout className="site-layout">
+        <Content style={{ margin: '16px' }}>
+          <Card
             bordered={false}
-            style={{ marginBottom: '20px', borderRadius: '10px' }}
-            headStyle={{ backgroundColor: '#1890ff', color: 'white' }}
+            style={{
+              borderRadius: '8px',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+              padding: 0,
+              overflow: 'hidden'
+            }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Text strong><HomeOutlined /> Home</Text>
-              <Text strong><CreditCardOutlined /> Payments</Text>
-              <Text strong style={{ color: '#1890ff' }}><UserOutlined /> Chỉnh sửa thông tin</Text>
+            {/* Background image with edit button */}
+            <div style={{ position: 'relative', height: 200, backgroundColor: '#f5f5f5' }}>
+              <img
+                src={typeof backgroundUrl === 'string' ? backgroundUrl : 'https://via.placeholder.com/800x200?text=Background'}
+                alt="background"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <Upload showUploadList={false} beforeUpload={(file) => handleImageUpload(file, setBackgroundUrl)}>
+                <Button
+                  icon={<UploadOutlined />}
+                  size="small"
+                  style={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    zIndex: 1
+                  }}
+                >
+                  Chỉnh sửa
+                </Button>
+              </Upload>
+            </div>
+
+            {/* Avatar + email */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginTop: -32,
+              padding: '0 24px 24px'
+            }}>
+              <div style={{ position: 'relative' }}>
+                <Avatar
+                  size={80}
+                  src={typeof avatarUrl === 'string' ? avatarUrl : undefined}
+                  icon={<UserOutlined />}
+                  style={{ border: '3px solid white' }}
+                />
+                <Upload showUploadList={false} beforeUpload={(file) => handleImageUpload(file, setAvatarUrl)}>
+                  <Button
+                    shape="circle"
+                    size="small"
+                    icon={<UploadOutlined />}
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      transform: 'translate(25%, 25%)',
+                      padding: 0
+                    }}
+                  />
+                </Upload>
+              </div>
+              <Text strong style={{ fontSize: 16, marginLeft: 16 }}>dothanh@gmail.com</Text>
+            </div>
+
+            {/* Giới thiệu + Thông tin liên hệ */}
+            <Row gutter={24} style={{ padding: '0 24px' }}>
+              <Col span={12}>
+                <Title level={5}>Giới thiệu</Title>
+                <Input.TextArea rows={5} placeholder="Viết gì đó về bạn..." />
+              </Col>
+              <Col span={12}>
+                <Title level={5}>Thông tin liên hệ</Title>
+                <div style={{ marginBottom: 16 }}>
+                  <Text strong>Tên tài khoản</Text>
+                  <Input placeholder="Tên tài khoản" style={{ marginTop: 8 }} />
+                </div>
+                <div>
+                  <Text strong>Số điện thoại</Text>
+                  <Input placeholder="Số điện thoại" style={{ marginTop: 8 }} />
+                </div>
+              </Col>
+            </Row>
+
+            {/* Thông tin cá nhân */}
+            <div style={{ padding: '24px' }}>
+              <Title level={5}>Thông tin Cá nhân</Title>
+              <Row gutter={16} style={{ marginBottom: 16 }}>
+                <Col span={12}>
+                  <Text strong>Email</Text>
+                  <Input value="dothanh@gmail.com" readOnly style={{ marginTop: 8 }} />
+                </Col>
+                <Col span={12}>
+                  <Text strong>Giới tính</Text>
+                  <div style={{ marginTop: 8 }}>
+                    <Radio.Group defaultValue="male">
+                      <Radio value="female">Nữ</Radio>
+                      <Radio value="male">Nam</Radio>
+                    </Radio.Group>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+
+            {/* Action buttons */}
+            <div style={{
+              padding: '0 24px 24px',
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}>
+              <Button danger>Xóa dữ liệu</Button>
+              <Button type="primary">Lưu thông tin</Button>
             </div>
           </Card>
-          
-          <Card 
-            bordered={false}
-            style={{ marginBottom: '20px', borderRadius: '10px' }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Avatar size={100} icon={<UserOutlined />} style={{ backgroundColor: '#1890ff', marginBottom: '16px' }} />
-              <Title level={4}>Người dùng</Title>
-              <Text type="secondary">user@example.com</Text>
-            </div>
-          </Card>
-          
-          <Card 
-            bordered={false}
-            style={{ borderRadius: '10px' }}
-          >
-            <Title level={4}>Thông tin cá nhân</Title>
-            <Divider />
-            
-            <Text strong>Họ và tên:</Text>
-            <Text style={{ display: 'block', marginBottom: '12px' }}>Nguyễn Văn A</Text>
-            
-            <Text strong>Email:</Text>
-            <Text style={{ display: 'block', marginBottom: '12px' }}>user@example.com</Text>
-            
-            <Text strong>Số điện thoại:</Text>
-            <Text style={{ display: 'block', marginBottom: '12px' }}>0123456789</Text>
-            
-            <Text strong>Địa chỉ:</Text>
-            <Text style={{ display: 'block', marginBottom: '12px' }}>123 Đường ABC, Quận XYZ, TP.HCM</Text>
-            
-            <Button type="primary" icon={<EditOutlined />} block>
-              Chỉnh sửa thông tin
-            </Button>
-          </Card>
-        </Col>
-        
-        <Col span={24} md={16}>
-          <Card 
-            title="Hoạt động gần đây" 
-            bordered={false}
-            style={{ marginBottom: '20px', borderRadius: '10px' }}
-          >
-            <Text>Bạn chưa có hoạt động gần đây</Text>
-          </Card>
-          
-          <Card 
-            title="Sân bóng đã đặt" 
-            bordered={false}
-            style={{ borderRadius: '10px' }}
-          >
-            <Card.Grid style={{ width: '100%', boxShadow: 'none' }}>
-              <Text strong>Sân bóng KARA Sport khu đô thị Hòa Quý</Text>
-              <Text style={{ display: 'block' }}>Quận Ngũ Hành Sơn - Đà Nẵng</Text>
-              <Text type="secondary">Số sân: 4</Text>
-            </Card.Grid>
-            
-            <Divider />
-            
-            <Card.Grid style={{ width: '100%', boxShadow: 'none' }}>
-              <Text strong>Sân cỏ nhân tạo Đại Học Bách Khoa</Text>
-              <Text style={{ display: 'block' }}>Quận Đông Đa - Hà Nội</Text>
-              <Text type="secondary">Số sân: 3</Text>
-            </Card.Grid>
-            
-            <Divider />
-            
-            <Card.Grid style={{ width: '100%', boxShadow: 'none' }}>
-              <Text strong>Sân bóng Hồng Hà</Text>
-              <Text style={{ display: 'block' }}>Quận Hoàng Mai - Hà Nội</Text>
-              <Text type="secondary">Số sân: 2</Text>
-            </Card.Grid>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

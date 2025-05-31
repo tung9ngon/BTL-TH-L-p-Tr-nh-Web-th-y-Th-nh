@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Layout, Card, Table, Tag, Typography, Divider, Row, Col } from 'antd';
-import { HomeOutlined, CreditCardOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
+import { Layout, Card, Table, Tag, Typography, Divider, Row, Col, Button } from 'antd';
+import { CreditCardOutlined } from '@ant-design/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
 import UserMenuLeft from '../component/UserMenuLeft';
-import { useLocation } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { Content } = Layout;
 
+type PaymentStatus = 'all' | 'completed' | 'pending' | 'rejected';
+
 const PaymentPage = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<PaymentStatus>('all');
   const location = useLocation();
+  const navigate = useNavigate();
 
   const transactionData = [
     {
@@ -70,6 +74,22 @@ const PaymentPage = () => {
     },
   ];
 
+  const filteredData = transactionData.filter(item => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'completed') return item.status === 'Success';
+    if (activeTab === 'pending') return item.status === 'Pending';
+    if (activeTab === 'rejected') return item.status === 'Rejected';
+    return true;
+  });
+
+  const totalPaid = transactionData
+    .filter(item => item.status === 'Success')
+    .reduce((sum, item) => sum + parseInt(item.amount.replace(/[^\d]/g, ''), 0), 0);
+
+  const recentPayment = transactionData
+    .filter(item => item.status === 'Success')
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
   const columns = [
     {
       title: 'Mã giao dịch',
@@ -113,81 +133,95 @@ const PaymentPage = () => {
     <Layout style={{ minHeight: '100vh' }}>
       <UserMenuLeft 
         collapsed={collapsed} 
-        currentPath={location.pathname.split('/')[1] || 'home'} 
       />
       
-      <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
-        <Content style={{ margin: '24px 16px', padding: 24, background: '#f5f5f5' }}>
-          <Title level={2} style={{ color: '#1890ff' }}>Trang lịch sử giao dịch</Title>
+      <Layout style={{ paddingLeft: collapsed ? 80 : 0 }}>
+        <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
+          <Title level={2} style={{ color: '#1890ff', marginBottom: 24 }}>
+            <CreditCardOutlined /> Lịch sử thanh toán
+          </Title>
           
-          <Row gutter={16}>
+          <Row gutter={[16, 16]}>
             <Col span={24} md={8}>
               <Card 
-                title="HotelBooking" 
+                title="Thống kê thanh toán" 
                 bordered={false}
-                style={{ marginBottom: '20px', borderRadius: '10px' }}
-                headStyle={{ backgroundColor: '#1890ff', color: 'white' }}
+                style={{ marginBottom: 20, borderRadius: 8 }}
+                headStyle={{ backgroundColor: '#f0f0f0' }}
               >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <Text strong><HomeOutlined /> Home</Text>
-                  <Text strong style={{ color: '#1890ff' }}><CreditCardOutlined /> Payments</Text>
-                  <Text strong><UserOutlined /> Chỉnh sửa thông tin</Text>
+                <div style={{ marginBottom: 16 }}>
+                  <Text strong>Tổng số tiền đã thanh toán</Text>
+                  <Title level={3} style={{ color: '#1890ff', marginTop: 8 }}>
+                    {totalPaid.toLocaleString()} đ
+                  </Title>
+                  <Text type="secondary">Từ ngày 02/2023</Text>
                 </div>
-              </Card>
-              
-              <Card 
-                bordered={false}
-                style={{ marginBottom: '20px', borderRadius: '10px' }}
-              >
-                <Title level={4}>Tổng số tiền đã thanh toán</Title>
-                <Text strong style={{ fontSize: '24px', color: '#1890ff' }}>đ1.000.000</Text>
-                <Text type="secondary">Từ ngày 2.0.2023</Text>
                 
                 <Divider />
                 
-                <Title level={4}>Thanh toán gần đây</Title>
-                <Text strong style={{ fontSize: '24px', color: '#1890ff' }}>đ100.00</Text>
-                <Text type="secondary">Từ ngày 2.0.2023</Text>
-              </Card>
-              
-              <Card 
-                bordered={false}
-                style={{ marginBottom: '20px', borderRadius: '10px' }}
-              >
-                <Title level={4}>Tài khoản ngân hàng đã liên kết</Title>
-                <Text strong>ISO2*******4822</Text>
-              </Card>
-              
-              <Card 
-                bordered={false}
-                style={{ borderRadius: '10px' }}
-              >
-                <Title level={4}>Cài đặt</Title>
-                <Text strong><SettingOutlined /> Log out</Text>
-                <br />
-                <Text strong>per page</Text>
+                <div style={{ marginBottom: 16 }}>
+                  <Text strong>Thanh toán gần đây</Text>
+                  <Title level={3} style={{ color: '#1890ff', marginTop: 8 }}>
+                    {recentPayment ? recentPayment.amount : '0 đ'}
+                  </Title>
+                  <Text type="secondary">
+                    {recentPayment ? `Ngày ${recentPayment.date}` : 'Chưa có giao dịch'}
+                  </Text>
+                </div>
+                
+                <Divider />
+                
+                <div>
+                  <Text strong>Tài khoản ngân hàng đã liên kết</Text>
+                  <Text style={{ display: 'block', marginTop: 8 }}>ISO2*******4822</Text>
+                </div>
               </Card>
             </Col>
             
             <Col span={24} md={16}>
               <Card 
-                title="Lịch sử giao dịch" 
                 bordered={false}
-                style={{ borderRadius: '10px' }}
+                style={{ borderRadius: 8 }}
+                bodyStyle={{ padding: 0 }}
               >
-                <div style={{ marginBottom: '16px' }}>
-                  <Tag color="default">All</Tag>
-                  <Tag color="green">Complete</Tag>
-                  <Tag color="orange">Reading</Tag>
-                  <Tag color="red">Rejected</Tag>
+                <div style={{ padding: 24 }}>
+                  <div style={{ marginBottom: 16 }}>
+                    <Button 
+                      type={activeTab === 'all' ? 'primary' : 'default'}
+                      onClick={() => setActiveTab('all')}
+                      style={{ marginRight: 8 }}
+                    >
+                      Tất cả
+                    </Button>
+                    <Button 
+                      type={activeTab === 'completed' ? 'primary' : 'default'}
+                      onClick={() => setActiveTab('completed')}
+                      style={{ marginRight: 8 }}
+                    >
+                      Đã thanh toán
+                    </Button>
+                    <Button 
+                      type={activeTab === 'pending' ? 'primary' : 'default'}
+                      onClick={() => setActiveTab('pending')}
+                      style={{ marginRight: 8 }}
+                    >
+                      Chưa thanh toán
+                    </Button>
+                    <Button 
+                      type={activeTab === 'rejected' ? 'primary' : 'default'}
+                      onClick={() => setActiveTab('rejected')}
+                    >
+                      Đã hủy
+                    </Button>
+                  </div>
+                  
+                  <Table 
+                    columns={columns} 
+                    dataSource={filteredData} 
+                    pagination={{ pageSize: 5 }}
+                    scroll={{ x: true }}
+                  />
                 </div>
-                
-                <Table 
-                  columns={columns} 
-                  dataSource={transactionData} 
-                  pagination={false}
-                  scroll={{ x: true }}
-                />
               </Card>
             </Col>
           </Row>
