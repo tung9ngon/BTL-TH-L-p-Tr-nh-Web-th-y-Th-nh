@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Checkbox, Divider, Form, Input, Typography, message } from 'antd';
 import {
   GoogleOutlined,
@@ -8,41 +8,54 @@ import {
 
 const { Title, Text, Link } = Typography;
 
-const onFinish = async (values: any) => {
-  try {
-    const response = await fetch("http://localhost:2222/api/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: values.email,
-        password: values.password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      message.error(`Login failed: ${data.message || 'Unknown error'}`);
-      return;
-    }
-
-    message.success("Login successful!");
-    console.log("Login success:", data);
-    // Ví dụ redirect sau login thành công:
-    // window.location.href = '/dashboard';
-    window.location.href = '/homepage';
-
-  } catch (error) {
-    message.error("Error during login, please try again.");
-    console.error("Error during login:", error);
-  }
-};
-
-
-
 const Login: React.FC = () => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://localhost:5000/api/auth/login/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Hiển thị lỗi ngay trên form
+        form.setFields([
+          {
+            name: 'email',
+            errors: [' '], // Giữ layout đều
+          },
+          {
+            name: 'password',
+            errors: [data.message || 'Invalid credentials'],
+          },
+        ]);
+        return;
+      }
+
+      message.success("Login successful!");
+      console.log("Login success:", data);
+      window.location.href = '/homepage';
+
+    } catch (error) {
+      message.error("Error during login, please try again.");
+      console.error("Error during login:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', padding: 40, flexWrap: 'wrap' }}>
       {/* Left side */}
@@ -87,8 +100,9 @@ const Login: React.FC = () => {
         </Title>
 
         <Form
+          form={form}
           layout="vertical"
-          onFinish={onFinish}  
+          onFinish={onFinish}
         >
           <Form.Item
             label="Email"
@@ -125,7 +139,7 @@ const Login: React.FC = () => {
           </div>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>
+            <Button type="primary" htmlType="submit" block loading={loading}>
               Login
             </Button>
           </Form.Item>
@@ -134,10 +148,6 @@ const Login: React.FC = () => {
         <Text type="secondary" style={{ textAlign: 'center', display: 'block' }}>
           Don’t have an account? <Link href="/signup">Sign up</Link>
         </Text>
-
-        
-
-        
       </div>
     </div>
   );

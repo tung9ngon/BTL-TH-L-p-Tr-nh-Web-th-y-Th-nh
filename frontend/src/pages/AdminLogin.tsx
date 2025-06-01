@@ -7,7 +7,7 @@ const { Title, Link } = Typography;
 const AdminLogin: React.FC = () => {
   const onFinish = async (values: any) => {
   try {
-    const response = await fetch("http://localhost:3333/api/auth/login", {
+    const response = await fetch("http://localhost:5000/api/auth/login/owner", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
