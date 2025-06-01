@@ -5,8 +5,7 @@ const ownerModel = require('../models/owner');
 async function registerUser(req, res) {
   try {
     const { name, email, password, phone } = req.body;
-    
-    // Kiểm tra input cơ bản
+
     if (!name || !email || !password || !phone) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -18,7 +17,7 @@ async function registerUser(req, res) {
 
     const userId = await userModel.createUser({ name, email, password, phone });
     res.status(201).json({ message: 'User registered successfully', userId });
-    
+
   } catch (error) {
     res.status(500).json({ 
       message: 'Registration failed',
@@ -31,7 +30,7 @@ async function registerUser(req, res) {
 async function registerOwner(req, res) {
   try {
     const { name, email, password, phone } = req.body;
-    
+
     if (!name || !email || !password || !phone) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -43,7 +42,7 @@ async function registerOwner(req, res) {
 
     const ownerId = await ownerModel.createOwner({ name, email, password, phone });
     res.status(201).json({ message: 'Owner registered successfully', ownerId });
-    
+
   } catch (error) {
     res.status(500).json({ 
       message: 'Registration failed',
@@ -56,7 +55,7 @@ async function registerOwner(req, res) {
 async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
@@ -67,11 +66,8 @@ async function loginUser(req, res) {
     }
 
     const user = users[0];
-    const token = generateToken(user.id, 'user'); // Tạo token
-    
     res.json({
       message: 'Login successful',
-      token, // Trả về token
       user: {
         id: user.id,
         name: user.name,
@@ -80,7 +76,7 @@ async function loginUser(req, res) {
         type: 'user'
       }
     });
-    
+
   } catch (error) {
     res.status(500).json({ 
       message: 'Login failed', 
@@ -89,11 +85,11 @@ async function loginUser(req, res) {
   }
 }
 
-// Đăng nhập chủ sân (cập nhật)
+// Đăng nhập chủ sân (không trả về token)
 async function loginOwner(req, res) {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
@@ -104,11 +100,8 @@ async function loginOwner(req, res) {
     }
 
     const owner = owners[0];
-    const token = generateToken(owner.id, 'owner'); // Tạo token
-    
     res.json({
       message: 'Login successful',
-      token, // Trả về token
       user: {
         id: owner.id,
         name: owner.name,
@@ -117,7 +110,7 @@ async function loginOwner(req, res) {
         type: 'owner'
       }
     });
-    
+
   } catch (error) {
     res.status(500).json({ 
       message: 'Login failed', 
