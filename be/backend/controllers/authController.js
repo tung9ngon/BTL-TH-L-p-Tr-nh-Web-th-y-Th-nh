@@ -1,6 +1,7 @@
 const userModel = require('../models/user');
 const ownerModel = require('../models/owner');
-
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 // Đăng ký người dùng
 async function registerUser(req, res) {
   try {
@@ -66,8 +67,15 @@ async function loginUser(req, res) {
     }
 
     const user = users[0];
+    const token = jwt.sign(
+  { id: user.id, name: user.name, email: user.email },
+  process.env.JWT_SECRET,
+  { expiresIn: '1h' }
+);
+
     res.json({
       message: 'Login successful',
+      token,
       user: {
         id: user.id,
         name: user.name,
@@ -84,7 +92,6 @@ async function loginUser(req, res) {
     });
   }
 }
-
 // Đăng nhập chủ sân (không trả về token)
 async function loginOwner(req, res) {
   try {

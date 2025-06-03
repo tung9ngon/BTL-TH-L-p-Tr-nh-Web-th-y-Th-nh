@@ -144,6 +144,8 @@ const HomePage: React.FC = () => {
   const [footballFields, setFootballFields] = useState<FootballField[]>([]);
   const [loading, setLoading] = useState(true);
   const [filteredFields, setFilteredFields] = useState<FootballField[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
   const navigate = useNavigate();
 
   const pageSize = 6;
@@ -155,6 +157,17 @@ const HomePage: React.FC = () => {
     if (lowerLocation.includes('hồ chí minh') || lowerLocation.includes('ho chi minh') || lowerLocation.includes('sài gòn')) return 'hcm';
     if (lowerLocation.includes('quảng ninh')) return 'quangninh';
     return 'other';
+  };
+   useEffect(() => {
+    // Lấy thông tin user từ localStorage khi component mount
+    const user = localStorage.getItem('user');
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
+  }, []);
+
+  const gotoComments = () => {
+    navigate('/comments');
   };
 
   useEffect(() => {
@@ -300,9 +313,7 @@ const HomePage: React.FC = () => {
     setSelectedCity(city);
   };
 
-  const gotoComments = () => {
-    console.log('Navigate to comments');
-  };
+
 
   const services = [
     'Tư vấn đầu tư thể thao',

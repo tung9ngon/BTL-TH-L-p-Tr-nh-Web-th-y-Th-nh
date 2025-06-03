@@ -8,50 +8,42 @@ const Login: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const onFinish = async (values: any) => {
-    try {
-      setLoading(true);
+const onFinish = async (values: any) => {
+  try {
+    setLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/auth/login/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
-      });
+    const response = await fetch("http://localhost:5000/api/auth/login/user", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: values.email, password: values.password }),
+});
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        // Hiển thị lỗi ngay trên form
-        form.setFields([
-          {
-            name: 'email',
-            errors: [' '], // Giữ layout đều
-          },
-          {
-            name: 'password',
-            errors: [data.message || 'Invalid credentials'],
-          },
-        ]);
-        return;
-      }
+    if (!response.ok) {
+  const errorData = await response.json();
+  console.error("Login failed:", errorData.message);
+  form.setFields([
+    { name: 'email', errors: [' '] },
+    { name: 'password', errors: [errorData.message || 'Invalid credentials'] },
+  ]);
+  return;
+}
 
-      message.success("Login successful!");
-      console.log("Login success:", data);
-      window.location.href = '/home';
+    // Lưu token và user info vào localStorage
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
 
-    } catch (error) {
-      message.error("Error during login, please try again.");
-      console.error("Error during login:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    message.success("Login successful!");
+    window.location.href = '/home';
 
+  } catch (error) {
+    message.error("Error during login, please try again.");
+    console.error("Error during login:", error);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div style={{ minHeight: '100vh', display: 'flex', padding: 40, flexWrap: 'wrap' }}>
       {/* Left side */}

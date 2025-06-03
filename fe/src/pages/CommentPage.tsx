@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, List, Form, Input, Button, Rate, Typography, message, Layout, Menu, Avatar, Badge, Dropdown, Space, Spin } from 'antd';
 import { UserOutlined, CommentOutlined, HomeOutlined, ReadOutlined, StarFilled, InfoCircleOutlined, BellOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
@@ -14,70 +15,99 @@ interface Feedback {
   created_at: string;
 }
 
+
 const CommentPage: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [form] = Form.useForm();
   const [currentUser, setCurrentUser] = useState<{ id: number; name: string } | null>(null);
+const navigate = useNavigate();
 
-  useEffect(() => {
-    // Fetch current user data (you might get this from your auth context)
-    const fetchUser = async () => {
-      try {
-        // Replace with your actual user fetching logic
-        const user = { id: 1, name: 'Tùng' }; // Example user
-        setCurrentUser(user);
-      } catch (error) {
-        console.error('Error fetching user:', error);
+useEffect(() => {
+  const fetchCurrentUser = async () => {
+    try {
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.log('No token found, user is not logged in');
+        return;
       }
-    };
 
-    fetchUser();
-  }, []);
+      // Giải mã token để lấy thông tin user (không cần gọi API)
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Giải mã payload của JWT
+      
+      // Lưu thông tin user vào state
+      setCurrentUser({
+        id: decodedToken.id,
+        name: decodedToken.name
+      });
 
-  useEffect(() => {
-    const fetchFeedbacks = async () => {
-      try {
-        const response = await axios.get('/api/comments');
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
+  };
+
+  fetchCurrentUser();
+}, []);
+
+useEffect(() => {
+  const fetchFeedbacks = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/comments', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
+
+      if (Array.isArray(response.data)) {
         setFeedbacks(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching feedbacks:', error);
-        message.error('Failed to load comments');
-        setLoading(false);
+      } else {
+        console.error('API response is not an array:', response.data);
+        message.error('Dữ liệu không hợp lệ');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching feedbacks:', error);
+      message.error('Không thể tải đánh giá');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchFeedbacks();
-  }, []);
+  fetchFeedbacks();
+}, []);
 
  const [submitting, setSubmitting] = useState(false);
 
-  const handleAddFeedback = async (values: any) => {
-    if (!currentUser) {
-      message.error('Vui lòng đăng nhập để gửi đánh giá');
-      return;
-    }
+const handleAddFeedback = async (values: any) => {
+  if (!currentUser) {
+    message.error('Vui lòng đăng nhập để gửi đánh giá');
+    return;
+  }
 
-    setSubmitting(true);
-    try {
-      const response = await axios.post('http://localhost:5000/api/comments', {
-        user_id: currentUser.id,
-        username: currentUser.name,
-        comment: values.comment,
-        rating: values.rating
-      });
+  setSubmitting(true);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.post('http://localhost:5000/api/comments', {
+      user_id: currentUser.id,
+      username: currentUser.name,
+      comment: values.comment,
+      rating: values.rating
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
-      setFeedbacks([response.data, ...feedbacks]);
-      form.resetFields();
-      message.success('Gửi đánh giá thành công!');
-    } catch (error: any) {
-      console.error('Lỗi khi gửi đánh giá:', error);
-      message.error(`Gửi đánh giá thất bại: ${error.response?.data?.message || error.message}`);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    setFeedbacks([response.data, ...feedbacks]);
+    form.resetFields();
+    message.success('Gửi đánh giá thành công!');
+  } catch (error: any) {
+    console.error('Lỗi khi gửi đánh giá:', error);
+    message.error(`Gửi đánh giá thất bại: ${error.response?.data?.message || error.message}`);
+  } finally {
+    setSubmitting(false);
+  }
+};
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Layout.Header style={{
@@ -97,7 +127,9 @@ const CommentPage: React.FC = () => {
           defaultSelectedKeys={['reviews']} 
           style={{ flex: 1, borderBottom: 'none' }}
         >
-          <Menu.Item key="home" icon={<HomeOutlined />}>Trang chủ</Menu.Item>
+          <Menu.Item key="home" icon={<HomeOutlined />} onClick={() => navigate('/home')}>
+    Trang chủ
+  </Menu.Item>
           <Menu.Item key="news" icon={<ReadOutlined />}>Tin tức</Menu.Item>
           <Menu.Item key="reviews" icon={<StarFilled />}>Đánh giá</Menu.Item>
           <Menu.Item key="about" icon={<InfoCircleOutlined />}>Giới thiệu</Menu.Item>
