@@ -1,11 +1,68 @@
 import React from 'react';
-import { Form, Input, Button, Checkbox, Typography, Card } from 'antd';
+import { Form, Input, Button, Checkbox, Typography, Card, message } from 'antd';
 
 const { Title, Link } = Typography;
+interface SessionData {
+  owner_id: string | number;
+  username: string;
+
+}
 
 const AdminLogin: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
+  const [form] = Form.useForm();
+  const onFinish = async (values: any) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login/owner", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+              form.setFields([
+                {
+                  name: 'email',
+                  errors: [' '],
+                },
+                {
+                  name: 'password',
+                  errors: [data.message || 'Invalid credentials'],
+                },
+              ]);
+              return;
+            }
+
+      if (!response.ok) {
+        message.error(`Login failed: ${data.message || 'Unknown error'}`);
+        return;
+      }
+
+      message.success("Login successful!");
+
+      const sessionData: SessionData = {
+        owner_id: data.user.id,
+        username: data.user.name,
+      };
+
+      sessionStorage.setItem('owner_session', JSON.stringify(sessionData));
+
+
+
+
+      console.log("Login success:", data);
+      window.location.href = 'admin/dashboard';
+
+    } catch (error) {
+      message.error("Error during login, please try again.");
+      console.error("Error during login:", error);
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -44,6 +101,7 @@ const AdminLogin: React.FC = () => {
           <Form
             name="admin_login"
             layout="vertical"
+            form={form}
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}

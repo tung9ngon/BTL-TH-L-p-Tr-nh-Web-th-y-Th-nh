@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Checkbox, Divider, Form, Input, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Button, Checkbox, Divider, Form, Input, Typography, message } from 'antd';
 import {
   GoogleOutlined,
   FacebookFilled,
@@ -7,8 +7,67 @@ import {
 } from '@ant-design/icons';
 
 const { Title, Text, Link } = Typography;
+interface SessionData {
+  user_id: string | number;
+  username: string;
+  
+}
 
 const Login: React.FC = () => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://localhost:5000/api/auth/login/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        form.setFields([
+          {
+            name: 'email',
+            errors: [' '],
+          },
+          {
+            name: 'password',
+            errors: [data.message || 'Invalid credentials'],
+          },
+        ]);
+        return;
+      }
+
+      message.success("Login successful!");
+      const sessionData = {
+        user_id: data.user.id,       // hoặc data.id tùy API trả về
+        username: data.user.username, // hoặc data.username
+                  
+        // các thông tin khác nếu cần
+      };
+
+      localStorage.setItem('session', JSON.stringify(sessionData));
+
+      console.log("Login success:", data);
+      window.location.href = '/home';
+    } catch (error) {
+      message.error("Error during login, please try again.");
+      console.error("Error during login:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', padding: 40, flexWrap: 'wrap' }}>
       {/* Left side */}
@@ -23,7 +82,7 @@ const Login: React.FC = () => {
         }}
       >
         <Title level={2} style={{ fontWeight: 'bold' }}>
-          Wellcome back,
+          Welcome back,
         </Title>
         <Text>
           Launch your website in seconds. Don’t have an account?{' '}
@@ -54,14 +113,13 @@ const Login: React.FC = () => {
 
         <Form
           layout="vertical"
-          onFinish={(values) => console.log('Login submitted:', values)}
+          form={form}
+          onFinish={onFinish}
         >
           <Form.Item
             label="Email"
             name="email"
-            rules={[
-              { required: true, type: 'email', message: 'Please enter a valid email' },
-            ]}
+            rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
           >
             <Input placeholder="example@example.com" />
           </Form.Item>
@@ -69,9 +127,7 @@ const Login: React.FC = () => {
           <Form.Item
             label="Password"
             name="password"
-            rules={[
-              { required: true, min: 8, message: 'At least 8 alphanumeric characters' },
-            ]}
+            rules={[{ required: true, min: 8, message: 'At least 8 alphanumeric characters' }]}
           >
             <Input.Password placeholder="At least 8 alphanumeric characters" />
           </Form.Item>
@@ -91,7 +147,7 @@ const Login: React.FC = () => {
           </div>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>
+            <Button type="primary" htmlType="submit" block loading={loading}>
               Login
             </Button>
           </Form.Item>
@@ -101,13 +157,6 @@ const Login: React.FC = () => {
           Don’t have an account? <Link href="/signup">Sign up</Link>
         </Text>
 
-        <Divider>Or continue with</Divider>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-          <Button icon={<GoogleOutlined />} shape="circle" />
-          <Button icon={<FacebookFilled />} shape="circle" />
-          <Button icon={<AppleFilled />} shape="circle" />
-        </div>
       </div>
     </div>
   );

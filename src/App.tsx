@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, BrowserRouter as Router } from 'react-router-d
 import SignUp from '../src/pages/SignUp';
 import BookingSuccess from '../src/pages/BookingSuccess';  
 import UserBookingPage from '../src/pages/UserBookingPage';
-import AdminDashboard from '../src/pages/AdminDashboard';
+
 import HomePage from '../src/pages/HomePage';
 import AdminLogin from '../src/pages/AdminLogin';
 import Login from '../src/pages/Login';
@@ -16,8 +16,8 @@ import ContentPage from './pages/ContentPage';
 import ContactPage from './pages/ContactPage';
 import PaymentPage from './pages/PaymentPage';
 import ProfilePage from './pages/ProfilePage';
-import EditProfile from './pages/EditProfile';
 
+import DashBoard from './pages/DashBoard';
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
 
@@ -44,19 +44,20 @@ export default function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/success" element={<BookingSuccess />} />
             <Route path="/booking/:fieldId" element={<UserBookingPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            
             <Route path="/home" element={<HomePage />} />
             <Route path="/field/:fieldId" element={<FieldDetailPage />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/login" element={<Login />} />
             <Route path="admin/fields" element={<ManageFields />} />
             <Route path="/admin/payments" element={<ManagePayment />} />
+            <Route path='/admin/dashboard' element ={<DashBoard/>} />
             <Route path="/comments" element={<CommentPage />} />
             <Route path="/content" element={<ContentPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
+            
           </Routes>
         </Content>
 

@@ -1,7 +1,5 @@
 import React from "react";
 import { 
-  Form, 
-  Input, 
   Button, 
   Typography, 
   Row, 
@@ -22,17 +20,9 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
 
 const ContactPage: React.FC = () => {
-  const [form] = Form.useForm();
   const navigate = useNavigate();
-
-  const onFinish = (values: any) => {
-    console.log('Received values:', values);
-    message.success('Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất có thể.');
-    form.resetFields();
-  };
 
   const handleBack = () => {
     navigate(-1); // Quay lại trang trước đó
@@ -40,112 +30,42 @@ const ContactPage: React.FC = () => {
 
   return (
     <div style={{ 
-      maxWidth: 1200, 
+      maxWidth: 800,  // Giảm maxWidth để phù hợp với 1 cột
       margin: '0 auto', 
       padding: '20px',
       fontFamily: 'sans-serif'
     }}>
       {/* Back Button */}
-      <Button 
-        type="text" 
-        icon={<ArrowLeftOutlined />} 
-        onClick={handleBack}
-        style={{ marginBottom: 16 }}
-      >
-        Quay lại
-      </Button>
+      <div style={{ textAlign: 'left' }}>
+        <Button 
+          type="text" 
+          icon={<ArrowLeftOutlined />} 
+          onClick={handleBack}
+          style={{ marginBottom: 16 }}
+        >
+          Quay lại
+        </Button>
+      </div>
 
       {/* Header Section */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <Title level={2} style={{ color: '#1890ff' }}>LIÊN HỆ VỚI CHÚNG TÔI</Title>
         <Text type="secondary">
-          Mọi thắc mắc, góp ý hoặc yêu cầu hỗ trợ, vui lòng điền form bên dưới hoặc liên hệ trực tiếp
+          Mọi thắc mắc, góp ý hoặc yêu cầu hỗ trợ, vui lòng liên hệ trực tiếp với chúng tôi
         </Text>
       </div>
 
-      <Row gutter={[32, 32]}>
-        {/* Contact Form */}
-        <Col xs={24} md={12}>
-          <Card 
-            title="Gửi tin nhắn cho chúng tôi" 
-            bordered={false}
-            style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          >
-            <Form
-              form={form}
-              name="contact_form"
-              onFinish={onFinish}
-              layout="vertical"
-            >
-              <Form.Item
-                name="name"
-                label="Họ và tên"
-                rules={[{ required: true, message: 'Vui lòng nhập tên của bạn!' }]}
-              >
-                <Input placeholder="Nguyễn Văn A" />
-              </Form.Item>
-
-              <Form.Item
-                name="email"
-                label="Email"
-                rules={[
-                  { 
-                    required: true, 
-                    message: 'Vui lòng nhập email của bạn!' 
-                  },
-                  { 
-                    type: 'email', 
-                    message: 'Email không hợp lệ!' 
-                  }
-                ]}
-              >
-                <Input placeholder="example@gmail.com" />
-              </Form.Item>
-
-              <Form.Item
-                name="phone"
-                label="Số điện thoại"
-                rules={[
-                  { 
-                    required: true, 
-                    message: 'Vui lòng nhập số điện thoại!' 
-                  },
-                  {
-                    pattern: /^[0-9]+$/,
-                    message: 'Số điện thoại không hợp lệ!'
-                  }
-                ]}
-              >
-                <Input placeholder="0987654321" />
-              </Form.Item>
-
-              <Form.Item
-                name="message"
-                label="Nội dung"
-                rules={[{ required: true, message: 'Vui lòng nhập nội dung!' }]}
-              >
-                <TextArea rows={4} placeholder="Xin chào, tôi muốn..." />
-              </Form.Item>
-
-              <Form.Item>
-                <Button 
-                  type="primary" 
-                  htmlType="submit"
-                  style={{ width: '100%' }}
-                >
-                  Gửi liên hệ
-                </Button>
-              </Form.Item>
-            </Form>
-          </Card>
-        </Col>
-
-        {/* Contact Info */}
-        <Col xs={24} md={12}>
+      <Row justify="center">
+        {/* Contact Info - Chỉ còn 1 cột duy nhất được căn giữa */}
+        <Col xs={24} md={18} lg={16}>
           <Card 
             title="Thông tin liên hệ" 
             bordered={false}
-            style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+            style={{ 
+              borderRadius: 8, 
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              width: '100%'
+            }}
           >
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
@@ -178,7 +98,7 @@ const ContactPage: React.FC = () => {
             <Divider>Giờ làm việc</Divider>
             
             <div style={{ marginBottom: 24 }}>
-              <Row gutter={16}>
+              <Row gutter={16} justify="center">
                 <Col span={12}>
                   <Text strong>Thứ 2 - Thứ 6</Text><br />
                   <Text type="secondary">8:00 - 18:00</Text>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -7,13 +7,16 @@ import {
   message,
   Typography,
   Layout,
-  Card,
-  Row,
-  Col,
   Image,
   Tag,
-  Divider,
-  Collapse
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  Row,
+  Col,
+  Descriptions,
+  Spin
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -21,378 +24,502 @@ import {
   DeleteOutlined,
   EyeOutlined,
   ExclamationCircleOutlined,
-  PlusOutlined,
-  MinusOutlined
+  InfoCircleOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import MenuLeft from "../component/MenuLeft";
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
-const { Panel } = Collapse;
+const { Option } = Select;
 const { Sider, Content } = Layout;
+const { Item } = Descriptions;
 
-interface SubField {
-  id: string;
+interface Pitch {
+  id: number;
+  owner_id: number;
   name: string;
-  description: string;
-  type: string;
-  goals: number;
-  price: number;
-  imageUrl: string;
-  status: 'available' | 'maintenance' | 'booked';
+  location: string;
+  price_per_hour: number;
+  pitch_type_id: number | null;
+  status: 'available' | 'maintenance';
+  created_at: string;
+  avatar: string | null;
+  avg_rating?: string;
+  total_reviews?: number;
 }
 
-interface Field {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  address: string;
-  subFields: SubField[];
-}
-
-const initialFields: Field[] = [
-  {
-    id: "1",
-    name: "KARA Football Center",
-    description: "Trung tâm bóng đá hiện đại với nhiều sân tiêu chuẩn",
-    imageUrl: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    address: "123 Đường ABC, Quận 1, TP.HCM",
-    subFields: [
-      {
-        id: "1-1",
-        name: "Sân Kara 1",
-        description: "Sân tiêu chuẩn FIFA, chất lượng cao",
-        type: "7 người",
-        goals: 2,
-        price: 800000,
-        imageUrl: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        status: 'available'
-      },
-      {
-        id: "1-2",
-        name: "Sân Kara 2",
-        description: "Sân nhân tạo đẹp, thoáng mát",
-        type: "5 người",
-        goals: 2,
-        price: 600000,
-        imageUrl: "https://via.placeholder.com/300x200?text=Kara+2",
-        status: 'available'
-      },
-      {
-        id: "1-3",
-        name: "Sân Kara 3",
-        description: "Sân mini phù hợp trẻ em",
-        type: "5 người",
-        goals: 1,
-        price: 500000,
-        imageUrl: "https://via.placeholder.com/300x200?text=Kara+3",
-        status: 'maintenance'
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Sân bóng Sài Gòn",
-    description: "Sân bóng chất lượng với nhiều tiện ích",
-    imageUrl: "https://via.placeholder.com/400x200?text=Sai+Gon+Football",
-    address: "456 Đường XYZ, Quận 3, TP.HCM",
-    subFields: [
-      {
-        id: "2-1",
-        name: "Sân SG1",
-        description: "Sân cỏ tự nhiên tiêu chuẩn",
-        type: "11 người",
-        goals: 2,
-        price: 1200000,
-        imageUrl: "https://via.placeholder.com/300x200?text=SG1",
-        status: 'available'
-      },
-      {
-        id: "2-2",
-        name: "Sân SG2",
-        description: "Sân nhân tạo chất lượng cao",
-        type: "7 người",
-        goals: 2,
-        price: 900000,
-        imageUrl: "https://via.placeholder.com/300x200?text=SG2",
-        status: 'booked'
-      },
-    ],
-  },
+const pitchTypes = [
+  { id: 1, name: "5 người" },
+  { id: 2, name: "7 người" },
+  { id: 3, name: "11 người" },
 ];
 
 const statusColors: Record<string, string> = {
   available: 'green',
-  maintenance: 'orange',
-  booked: 'red'
+  maintenance: 'orange'
 };
 
 const statusLabels: Record<string, string> = {
   available: 'Có sẵn',
-  maintenance: 'Bảo trì',
-  booked: 'Đã đặt'
+  maintenance: 'Bảo trì'
 };
 
+// API base URL
+const API_BASE_URL = 'http://localhost:5000/api';
+
 const ManageFields: React.FC = () => {
-  const [fields, setFields] = useState<Field[]>(initialFields);
+  const [pitches, setPitches] = useState<Pitch[]>([]);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentPitch, setCurrentPitch] = useState<Pitch | null>(null);
+  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'add'>('view');
+  const [form] = Form.useForm();
   const pageSize = 5;
 
-  const handleEdit = (record: Field | SubField) => {
-    message.info(`Sửa ${'subFields' in record ? 'sân chính' : 'sân phụ'}: ${record.name}`);
-    // TODO: redirect hoặc mở form modal
+  // Get owner_id from localStorage
+  const getOwnerId = () => {
+    return localStorage.getItem('owner_id') || localStorage.getItem('selectedFieldId') || '1';
   };
 
-  const handleView = (record: Field | SubField) => {
-    const isMainField = 'subFields' in record;
-    
-    Modal.info({
-      title: `Chi tiết ${isMainField ? 'sân chính' : 'sân phụ'}: ${record.name}`,
-      width: 800,
-      content: (
-        <div>
-          {record.imageUrl && (
-            <Image 
-              src={record.imageUrl} 
-              alt={record.name}
-              style={{ marginBottom: 16, borderRadius: 4 }}
-            />
-          )}
-          
-          <Row gutter={16}>
-            <Col span={12}>
-              <p><strong>Mô tả:</strong> {record.description}</p>
-              {isMainField && (
-                <p><strong>Địa chỉ:</strong> {(record as Field).address}</p>
-              )}
-            </Col>
-            <Col span={12}>
-              {!isMainField && (
-                <>
-                  <p><strong>Loại sân:</strong> {(record as SubField).type}</p>
-                  <p><strong>Số khung thành:</strong> {(record as SubField).goals}</p>
-                  <p><strong>Giá thuê:</strong> {(record as SubField).price.toLocaleString()} VND</p>
-                  <p><strong>Trạng thái:</strong> 
-                    <Tag color={statusColors[(record as SubField).status]} style={{ marginLeft: 8 }}>
-                      {statusLabels[(record as SubField).status]}
-                    </Tag>
-                  </p>
-                </>
-              )}
-              {isMainField && (
-                <p><strong>Số sân con:</strong> {(record as Field).subFields.length}</p>
-              )}
-            </Col>
-          </Row>
-        </div>
-      ),
-      onOk() {},
-    });
+  // API calls
+  const fetchPitches = async () => {
+    setLoading(true);
+    try {
+      const ownerId = getOwnerId();
+      const response = await fetch(`${API_BASE_URL}/pitches/owner/${ownerId}/pitches`);
+      const data = await response.json();
+
+      if (data.success) {
+        setPitches(data.data);
+      } else {
+        message.error(data.message || 'Lỗi khi tải danh sách sân');
+      }
+    } catch (error) {
+      message.error('Lỗi kết nối server');
+      console.error('Error fetching pitches:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (record: Field | SubField, parentId?: string) => {
-    confirm({
-      title: `Bạn có chắc muốn xóa ${parentId ? 'sân phụ' : 'sân chính'} "${record.name}"?`,
-      icon: <ExclamationCircleOutlined />,
-      onOk() {
-        if (parentId) {
-          // Delete sub-field
-          setFields(fields.map(field => 
-            field.id === parentId 
-              ? {...field, subFields: field.subFields.filter(sub => sub.id !== record.id)}
-              : field
-          ));
-        } else {
-          // Delete main field
-          setFields(fields.filter(field => field.id !== record.id));
+  const addPitch = async (pitchData: any) => {
+    try {
+      const ownerId = getOwnerId();
+      const response = await fetch(`${API_BASE_URL}/pitches/owner/${ownerId}/pitches`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pitchData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        message.success('Thêm sân thành công!');
+        fetchPitches();
+        return true;
+      } else {
+        message.error(data.message || 'Lỗi khi thêm sân');
+        return false;
+      }
+    } catch (error) {
+      message.error('Lỗi kết nối server');
+      console.error('Error adding pitch:', error);
+      return false;
+    }
+  };
+
+  const updatePitch = async (pitchId: number, pitchData: any) => {
+    try {
+      const ownerId = getOwnerId();
+      const response = await fetch(`${API_BASE_URL}/pitches/owner/${ownerId}/pitches/${pitchId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(pitchData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        message.success('Cập nhật sân thành công!');
+        fetchPitches();
+        return true;
+      } else {
+        message.error(data.message || 'Lỗi khi cập nhật sân');
+        return false;
+      }
+    } catch (error) {
+      message.error('Lỗi kết nối server');
+      console.error('Error updating pitch:', error);
+      return false;
+    }
+  };
+
+
+
+  // Load pitches on component mount
+  useEffect(() => {
+    fetchPitches();
+  }, []);
+
+  const showModal = (mode: 'view' | 'edit' | 'add', pitch?: Pitch) => {
+    setModalMode(mode);
+    setCurrentPitch(pitch || null);
+
+    if (mode === 'add') {
+      form.resetFields();
+    } else if (pitch) {
+      form.setFieldsValue({
+        name: pitch.name,
+        location: pitch.location,
+        price_per_hour: pitch.price_per_hour,
+        pitch_type_id: Number(pitch.pitch_type_id),
+        status: pitch.status,
+        avatar: pitch.avatar
+      });
+    }
+
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+
+      if (modalMode === 'add') {
+        const success = await addPitch(values);
+        if (success) {
+          setIsModalVisible(false);
+          form.resetFields();
         }
-        message.success("Xóa thành công!");
-      },
-    });
+      } else if (modalMode === 'edit' && currentPitch) {
+        const success = await updatePitch(currentPitch.id, values);
+        if (success) {
+          setIsModalVisible(false);
+          form.resetFields();
+        }
+      }
+    } catch (error) {
+      console.error('Form validation failed:', error);
+    }
   };
 
-  const handleAddSubField = (fieldId: string) => {
-    message.info(`Thêm sân phụ vào sân ${fields.find(f => f.id === fieldId)?.name}`);
-    // TODO: Open add sub-field form
-  };
 
-  const columns: ColumnsType<Field> = [
+
+  const columns: ColumnsType<Pitch> = [
     {
       title: "Tên sân",
       dataIndex: "name",
       key: "name",
+      width: '35%',
       render: (text, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Image 
-            src={record.imageUrl} 
-            alt={text}
-            width={80}
-            height={50}
-            style={{ borderRadius: 4, marginRight: 12, objectFit: 'cover' }}
-          />
+          {record.avatar && (
+            <Image
+              src={record.avatar}
+              alt={text}
+              width={60}
+              height={40}
+              style={{ borderRadius: 4, marginRight: 12, objectFit: 'cover' }}
+              fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxM"
+            />
+          )}
           <div>
-            <div>{text}</div>
-            <Text type="secondary" style={{ fontSize: 12 }}>{record.address}</Text>
+            <div style={{ fontWeight: 500 }}>{text}</div>
+            <Text type="secondary" style={{ fontSize: 12 }}>{record.location}</Text>
+            {record.avg_rating && (
+              <div style={{ fontSize: 12, color: '#faad14' }}>
+                ⭐ {record.avg_rating} ({record.total_reviews || 0} đánh giá)
+              </div>
+            )}
           </div>
         </div>
       ),
     },
     {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      ellipsis: true,
+      title: "Giá thuê (VND/giờ)",
+      dataIndex: "price_per_hour",
+      key: "price_per_hour",
+      width: '15%',
+      render: (value: number) => value?.toLocaleString() || '0',
     },
     {
-      title: "Số sân con",
-      key: "subFieldsCount",
-      render: (_, record) => record.subFields.length,
+      title: "Loại sân",
+      key: "pitch_type_id",
+      width: '10%',
+      render: (_, record) => {
+        // Convert to number để đảm bảo matching đúng
+        const pitchTypeId = Number(record.pitch_type_id);
+        const type = pitchTypes.find(t => t.id === pitchTypeId);
+        return type ? type.name : `Không xác định (ID: ${record.pitch_type_id})`;
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      width: '10%',
+      render: (status: string) => (
+        <Tag color={statusColors[status]}>{statusLabels[status]}</Tag>
+      ),
     },
     {
       title: "Thao tác",
       key: "action",
-      width: 200,
+      width: '15%',
       render: (_, record) => (
         <Space>
-          <Button icon={<EyeOutlined />} onClick={() => handleView(record)} />
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-          <Button 
-            danger 
-            icon={<DeleteOutlined />} 
-            onClick={() => handleDelete(record)} 
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => showModal('view', record)}
+            type="text"
+            style={{ color: '#1890ff' }}
           />
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />} 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddSubField(record.id);
-            }} 
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => showModal('edit', record)}
+            type="text"
+            style={{ color: '#52c41a' }}
           />
+
         </Space>
       ),
     },
   ];
 
-  const expandedRowRender = (record: Field) => {
-    const subFieldColumns: ColumnsType<SubField> = [
-      {
-        title: "Tên sân phụ",
-        dataIndex: "name",
-        key: "name",
-        render: (text, subRecord) => (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Image 
-              src={subRecord.imageUrl} 
-              alt={text}
-              width={60}
-              height={40}
-              style={{ borderRadius: 4, marginRight: 8, objectFit: 'cover' }}
-            />
-            <div>{text}</div>
-          </div>
-        ),
-      },
-      {
-        title: "Loại sân",
-        dataIndex: "type",
-        key: "type",
-      },
-      {
-        title: "Giá thuê (VND)",
-        dataIndex: "price",
-        key: "price",
-        render: (value: number) => value.toLocaleString(),
-      },
-      {
-        title: "Trạng thái",
-        dataIndex: "status",
-        key: "status",
-        render: (status: string) => (
-          <Tag color={statusColors[status]}>{statusLabels[status]}</Tag>
-        ),
-      },
-      {
-        title: "Thao tác",
-        key: "action",
-        render: (_, subRecord) => (
-          <Space>
-            <Button 
-              size="small" 
-              icon={<EyeOutlined />} 
-              onClick={() => handleView(subRecord)} 
-            />
-            <Button 
-              size="small" 
-              icon={<EditOutlined />} 
-              onClick={() => handleEdit(subRecord)} 
-            />
-            <Button 
-              size="small" 
-              danger 
-              icon={<DeleteOutlined />} 
-              onClick={() => handleDelete(subRecord, record.id)} 
-            />
-          </Space>
-        ),
-      },
-    ];
-
-    return (
-      <div style={{ margin: '0 48px' }}>
-        <Title level={5} style={{ marginBottom: 16 }}>Danh sách sân phụ</Title>
-        <Table
-          rowKey="id"
-          columns={subFieldColumns}
-          dataSource={record.subFields}
-          pagination={false}
-          size="small"
-          bordered
-        />
-      </div>
-    );
-  };
-
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider breakpoint="lg" collapsedWidth="0" style={{ background: "#fff" }}>
+      <Sider width={200} style={{ background: "#fff" }}>
         <MenuLeft />
       </Sider>
-
       <Layout style={{ padding: "24px" }}>
         <Content style={{ background: "#fff", padding: 24, borderRadius: 8 }}>
-          <Title level={4} style={{ marginBottom: 24 }}>Quản lý sân bóng</Title>
-          
-          <Table
-            rowKey="id"
-            columns={columns}
-            dataSource={fields}
-            expandable={{
-              expandedRowRender,
-              expandIcon: ({ expanded, onExpand, record }) =>
-                expanded ? (
-                  <MinusOutlined onClick={e => onExpand(record, e)} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <Title level={4} style={{ margin: 0 }}>Quản lý sân bóng</Title>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => showModal('add')}
+            >
+              Thêm sân mới
+            </Button>
+          </div>
+
+          <Spin spinning={loading}>
+            <Table
+              rowKey="id"
+              columns={columns}
+              dataSource={pitches}
+              pagination={{
+                current: currentPage,
+                pageSize,
+                total: pitches.length,
+                onChange: (page) => setCurrentPage(page),
+                showSizeChanger: false,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sân`,
+              }}
+              scroll={{ x: true }}
+            />
+          </Spin>
+
+          {/* View Modal */}
+          <Modal
+            title={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <InfoCircleOutlined style={{ color: '#1890ff', fontSize: 24, marginRight: 12 }} />
+                <span>Thông tin chi tiết sân bóng</span>
+              </div>
+            }
+            open={isModalVisible && modalMode === 'view'}
+            width={700}
+            onCancel={handleCancel}
+            footer={[
+              <Button key="close" onClick={handleCancel}>Đóng</Button>
+            ]}
+            centered
+          >
+            {currentPitch && (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  {currentPitch.avatar && (
+                    <Image
+                      src={currentPitch.avatar}
+                      alt={currentPitch.name}
+                      width={400}
+                      style={{ borderRadius: 8, maxHeight: 300, objectFit: 'cover' }}
+                      fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxM"
+                    />
+                  )}
+                </div>
+
+                <Descriptions bordered column={1} size="middle">
+                  <Item label="Tên sân">
+                    <Text strong>{currentPitch.name}</Text>
+                  </Item>
+                  <Item label="Địa điểm">
+                    {currentPitch.location}
+                  </Item>
+                  <Item label="Giá thuê (VND/giờ)">
+                    {currentPitch.price_per_hour?.toLocaleString() || '0'}
+                  </Item>
+                  <Item label="Loại sân">
+                    {(() => {
+                      const pitchTypeId = Number(currentPitch.pitch_type_id);
+                      const type = pitchTypes.find(t => t.id === pitchTypeId);
+                      return type ? type.name : `Không xác định (ID: ${currentPitch.pitch_type_id})`;
+                    })()}
+                  </Item>
+                  <Item label="Trạng thái">
+                    <Tag color={statusColors[currentPitch.status]}>
+                      {statusLabels[currentPitch.status]}
+                    </Tag>
+                  </Item>
+                  {currentPitch.avg_rating && (
+                    <Item label="Đánh giá">
+                      <div>
+                        <span style={{ color: '#faad14' }}>⭐ {currentPitch.avg_rating}</span>
+                        <span style={{ marginLeft: 8, color: '#666' }}>
+                          ({currentPitch.total_reviews} đánh giá)
+                        </span>
+                      </div>
+                    </Item>
+                  )}
+                  <Item label="Ngày tạo">
+                    {new Date(currentPitch.created_at).toLocaleDateString('vi-VN')}
+                  </Item>
+                </Descriptions>
+              </div>
+            )}
+          </Modal>
+
+          {/* Add/Edit Modal */}
+          <Modal
+            title={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {modalMode === 'add' ? (
+                  <PlusOutlined style={{ color: '#1890ff', fontSize: 24, marginRight: 12 }} />
                 ) : (
-                  <PlusOutlined onClick={e => onExpand(record, e)} />
-                ),
-              rowExpandable: (record) => record.subFields.length > 0,
-              expandedRowKeys: expandedRows,
-              onExpand: (expanded, record) => {
-                if (expanded) {
-                  setExpandedRows([...expandedRows, record.id]);
-                } else {
-                  setExpandedRows(expandedRows.filter(id => id !== record.id));
-                }
-              },
-            }}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              onChange: (page) => setCurrentPage(page),
-            }}
-          />
+                  <EditOutlined style={{ color: '#52c41a', fontSize: 24, marginRight: 12 }} />
+                )}
+                <span>{modalMode === 'add' ? 'Thêm sân bóng mới' : 'Chỉnh sửa thông tin sân bóng'}</span>
+              </div>
+            }
+            open={isModalVisible && (modalMode === 'edit' || modalMode === 'add')}
+            width={700}
+            onCancel={handleCancel}
+            footer={[
+              <Button key="cancel" onClick={handleCancel}>Hủy</Button>,
+              <Button key="submit" type="primary" onClick={handleSubmit}>
+                {modalMode === 'add' ? 'Thêm sân' : 'Cập nhật'}
+              </Button>
+            ]}
+            centered
+          >
+            <Form
+              form={form}
+              layout="vertical"
+              initialValues={{
+                status: 'available'
+              }}
+            >
+              <Form.Item
+                label="URL ảnh đại diện"
+                name="avatar"
+              >
+                <Input placeholder="Nhập URL ảnh sân bóng" />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Tên sân"
+                    name="name"
+                    rules={[
+                      { required: true, message: 'Vui lòng nhập tên sân!' },
+                      { min: 2, message: 'Tên sân phải có ít nhất 2 ký tự!' }
+                    ]}
+                  >
+                    <Input placeholder="Nhập tên sân" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="Loại sân"
+                    name="pitch_type_id"
+                    rules={[
+                      { required: true, message: 'Vui lòng chọn loại sân!' }
+                    ]}
+                  >
+                    <Select placeholder="Chọn loại sân">
+                      {pitchTypes.map(type => (
+                        <Option key={type.id} value={type.id}>{type.name}</Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item
+                label="Địa điểm"
+                name="location"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập địa điểm!' },
+                  { min: 5, message: 'Địa điểm phải có ít nhất 5 ký tự!' }
+                ]}
+              >
+                <Input.TextArea
+                  rows={2}
+                  placeholder="Nhập địa chỉ sân bóng"
+                />
+              </Form.Item>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Giá thuê (VND/giờ)"
+                    name="price_per_hour"
+                    rules={[
+                      { required: true, message: 'Vui lòng nhập giá thuê!' },
+                      { type: 'number', min: 1000, message: 'Giá thuê phải lớn hơn 1,000 VND!' }
+                    ]}
+                  >
+                    <InputNumber
+                      style={{ width: '100%' }}
+                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                      parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                      placeholder="Nhập giá thuê"
+
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="Trạng thái"
+                    name="status"
+                    rules={[
+                      { required: true, message: 'Vui lòng chọn trạng thái!' }
+                    ]}
+                  >
+                    <Select placeholder="Chọn trạng thái">
+                      <Option value="available">Có sẵn</Option>
+                      <Option value="maintenance">Bảo trì</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </Modal>
         </Content>
       </Layout>
     </Layout>

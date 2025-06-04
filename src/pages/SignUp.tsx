@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Form, Input, Typography, Divider } from 'antd';
+import React, { useState } from 'react';
+import { Button, Form, Input, Typography, Divider, message } from 'antd';
 import {
   GoogleOutlined,
   FacebookFilled,
@@ -9,12 +9,64 @@ import {
 const { Title, Text, Link } = Typography;
 
 const SignUp: React.FC = () => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://localhost:5000/api/auth/register/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const messageText = data.message || 'Registration failed';
+
+        const errorFields = [];
+
+        if (messageText.toLowerCase().includes("email")) {
+          errorFields.push({ name: 'email', errors: [messageText] });
+        } else if (messageText.toLowerCase().includes("phone")) {
+          errorFields.push({ name: 'phone', errors: [messageText] });
+        } else {
+          errorFields.push({ name: 'password', errors: [messageText] });
+        }
+
+        form.setFields(errorFields);
+        return;
+      }
+
+      message.success("Registration successful!");
+      console.log("Registration success:", data);
+      window.location.href = '/login';
+
+    } catch (error) {
+      message.error("Error during registration, please try again.");
+      console.error("Error during registration:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', padding: 40 }}>
       {/* Left side content */}
       <div style={{ flex: 1, paddingRight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Title level={2} style={{ fontWeight: 'bold' }}>Wellcome back,</Title>
-        <Text>Launch your website in seconds. Already have an account?{' '}
+        <Title level={2} style={{ fontWeight: 'bold' }}>Welcome back,</Title>
+        <Text>
+          Launch your website in seconds. Already have an account?{' '}
           <Link href="/login">Log in here.</Link>
         </Text>
         <img
@@ -25,15 +77,32 @@ const SignUp: React.FC = () => {
       </div>
 
       {/* Right side form */}
-      <div style={{ flex: 1, maxWidth: 700,  margin: 'auto' }}>
+      <div style={{ flex: 1, maxWidth: 700, margin: 'auto' }}>
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
           Sign up (Free)
         </Title>
 
         <Form
+          form={form}
           layout="vertical"
-          onFinish={(values) => console.log('Submitted:', values)}
+          onFinish={onFinish}
         >
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: 'Please enter your name' }]}
+          >
+            <Input placeholder="John Doe" />
+          </Form.Item>
+
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[{ required: true, message: 'Please enter your phone number' }]}
+          >
+            <Input placeholder="+84 123456789" />
+          </Form.Item>
+
           <Form.Item
             label="Email"
             name="email"
@@ -57,7 +126,7 @@ const SignUp: React.FC = () => {
           </Text>
 
           <Form.Item style={{ marginTop: 24 }}>
-            <Button type="primary" htmlType="submit" block>
+            <Button type="primary" htmlType="submit" block loading={loading}>
               Sign up (Free)
             </Button>
           </Form.Item>
