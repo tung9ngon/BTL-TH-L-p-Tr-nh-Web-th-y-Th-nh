@@ -383,14 +383,18 @@ const HomePage: React.FC = () => {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="profile" icon={<ProfileOutlined />}>
+      <Menu.Item
+        key="profile"
+        icon={<ProfileOutlined />}
+        onClick={() => navigate('/profile')}
+      >
         Xem thông tin cá nhân
       </Menu.Item>
-      <Menu.Item key="bill" icon={<BarChartOutlined />}>
+      <Menu.Item key="bill" icon={<BarChartOutlined />} onClick={() => navigate('/payment')}>
         Lịch sử giao dịch
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />}>
+      <Menu.Item key="logout" icon={<LogoutOutlined />} danger onClick={() => navigate('/login')}>
         Đăng xuất
       </Menu.Item>
     </Menu>
@@ -431,6 +435,15 @@ const HomePage: React.FC = () => {
     return <TeamOutlined />;
   };
 
+  function getSelectedKey(): string {
+    // Determine selected menu key based on current location
+    const path = window.location.pathname;
+    if (path === '/' || path.startsWith('/home')) return 'home';
+    if (path.startsWith('/news')) return 'news';
+    if (path.startsWith('/reviews') || path.startsWith('/comments')) return 'reviews';
+    return 'home';
+  }
+
   return (
     <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
       {/* HEADER */}
@@ -449,7 +462,7 @@ const HomePage: React.FC = () => {
         </div>
         <Menu 
           mode="horizontal" 
-          defaultSelectedKeys={['home']} 
+          defaultSelectedKeys={[getSelectedKey()]} 
           style={{ 
             flex: 1, 
             borderBottom: 'none',
@@ -458,14 +471,11 @@ const HomePage: React.FC = () => {
           }}
         >
           <Menu.Item key="home" icon={<HomeOutlined />}>Trang chủ</Menu.Item>
-          <Menu.Item key="news" icon={<ReadOutlined />}>Tin tức</Menu.Item>
+          <Menu.Item key="news" icon={<ReadOutlined />} onClick={()=> navigate('/news')}>Tin tức</Menu.Item>
           <Menu.Item key="reviews" icon={<StarFilled />} onClick={gotoComments}>Đánh giá</Menu.Item>
-          <Menu.Item key="about" icon={<InfoCircleOutlined />}>Giới thiệu</Menu.Item>
+
         </Menu>
         <Space size="middle" style={{ marginLeft: 'auto' }}>
-          <Badge count={3}>
-            <BellOutlined style={{ fontSize: 18, cursor: 'pointer' }} />
-          </Badge>
           <Dropdown overlay={userMenu} trigger={['click']}>
             <Avatar
               icon={<UserOutlined />}

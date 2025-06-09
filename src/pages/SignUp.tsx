@@ -32,7 +32,7 @@ const SignUp: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        const messageText = data.message || 'Registration failed';
+        const messageText = data.message || 'Đăng ký thất bại';
 
         const errorFields = [];
 
@@ -48,38 +48,52 @@ const SignUp: React.FC = () => {
         return;
       }
 
-      message.success("Registration successful!");
-      console.log("Registration success:", data);
+      message.success("Đăng ký thành công!");
+      console.log("Đăng ký thành công:", data);
       window.location.href = '/login';
 
     } catch (error) {
-      message.error("Error during registration, please try again.");
-      console.error("Error during registration:", error);
+      message.error("Lỗi khi đăng ký, vui lòng thử lại.");
+      console.error("Lỗi khi đăng ký:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', padding: 40 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', padding: 40, flexWrap: 'wrap', maxWidth: 1200, margin: '0 auto' }}>
       {/* Left side content */}
-      <div style={{ flex: 1, paddingRight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Title level={2} style={{ fontWeight: 'bold' }}>Welcome back,</Title>
+      <div style={{ 
+        flex: 1, 
+        minWidth: 300,
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center',
+        paddingRight: 40,
+      }}>
+        <Title level={2} style={{ fontWeight: 'bold' }}>Chào mừng bạn,</Title>
         <Text>
-          Launch your website in seconds. Already have an account?{' '}
-          <Link href="/login">Log in here.</Link>
+          Khởi chạy website của bạn trong vài giây. Đã có tài khoản?{' '}
+          <Link href="/login">Đăng nhập ngay.</Link>
         </Text>
         <img
           src="https://cdn3d.iconscout.com/3d/premium/thumb/working-employee-at-home-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--on-laptop-work-from-man-businessman-character-pack-people-illustrations-3864094.png"
           alt="Illustration"
-          style={{ width: 600, marginTop: 24, maxWidth: '100%' }}
+          style={{ width: '100%', maxWidth: 500, marginTop: 24 }}
         />
       </div>
 
       {/* Right side form */}
-      <div style={{ flex: 1, maxWidth: 700, margin: 'auto' }}>
+      <div style={{ 
+        flex: 1, 
+        minWidth: 300,
+        maxWidth: 400,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}>
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
-          Sign up (Free)
+          Đăng ký (Miễn phí)
         </Title>
 
         <Form
@@ -88,17 +102,17 @@ const SignUp: React.FC = () => {
           onFinish={onFinish}
         >
           <Form.Item
-            label="Name"
+            label="Họ và tên"
             name="name"
-            rules={[{ required: true, message: 'Please enter your name' }]}
+            rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
           >
-            <Input placeholder="John Doe" />
+            <Input placeholder="Nguyễn Văn A" />
           </Form.Item>
 
           <Form.Item
-            label="Phone"
+            label="Số điện thoại"
             name="phone"
-            rules={[{ required: true, message: 'Please enter your phone number' }]}
+            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
           >
             <Input placeholder="+84 123456789" />
           </Form.Item>
@@ -106,39 +120,31 @@ const SignUp: React.FC = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
+            rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}
           >
             <Input placeholder="example@example.com" />
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label="Mật khẩu"
             name="password"
-            rules={[{ required: true, min: 8, message: 'At least 8 alphanumeric characters' }]}
+            rules={[{ required: true, min: 8, message: 'Ít nhất 8 ký tự' }]}
           >
-            <Input.Password placeholder="At least 8 alphanumeric characters" />
+            <Input.Password placeholder="Ít nhất 8 ký tự" />
           </Form.Item>
 
           <Text type="secondary">
-            By signing up, you agree to the{' '}
-            <Link href="#">Terms of Service</Link> and{' '}
-            <Link href="#">Privacy Policy</Link>.
+            Bằng việc đăng ký, bạn đồng ý với{' '}
+            <Link href="#">Điều khoản dịch vụ</Link> và{' '}
+            <Link href="#">Chính sách bảo mật</Link>.
           </Text>
 
           <Form.Item style={{ marginTop: 24 }}>
             <Button type="primary" htmlType="submit" block loading={loading}>
-              Sign up (Free)
+              Đăng ký (Miễn phí)
             </Button>
           </Form.Item>
         </Form>
-
-        <Divider>Or continue with</Divider>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
-          <Button icon={<GoogleOutlined />} shape="circle" />
-          <Button icon={<FacebookFilled />} shape="circle" />
-          <Button icon={<AppleFilled />} shape="circle" />
-        </div>
       </div>
     </div>
   );

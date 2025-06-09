@@ -10,12 +10,12 @@ const { Title, Text, Link } = Typography;
 interface SessionData {
   user_id: string | number;
   username: string;
-  
 }
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
 
   const onFinish = async (values: any) => {
     try {
@@ -42,34 +42,41 @@ const Login: React.FC = () => {
           },
           {
             name: 'password',
-            errors: [data.message || 'Invalid credentials'],
+            errors: [data.message || 'Thông tin đăng nhập không hợp lệ'],
           },
         ]);
         return;
       }
 
-      message.success("Login successful!");
+      message.success("Đăng nhập thành công!");
       const sessionData = {
-        user_id: data.user.id,       // hoặc data.id tùy API trả về
-        username: data.user.username, // hoặc data.username
-                  
-        // các thông tin khác nếu cần
+        user_id: data.user.id,
+        username: data.user.username,
       };
 
       localStorage.setItem('session', JSON.stringify(sessionData));
 
-      console.log("Login success:", data);
+      console.log("Đăng nhập thành công:", data);
       window.location.href = '/home';
     } catch (error) {
-      message.error("Error during login, please try again.");
-      console.error("Error during login:", error);
+      message.error("Lỗi khi đăng nhập, vui lòng thử lại.");
+      console.error("Lỗi khi đăng nhập:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const onAdminLogin = async () => {
+    try {
+      setAdminLoading(true);
+      window.location.href = '/admin-login';
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', padding: 40, flexWrap: 'wrap' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', padding: 40, flexWrap: 'wrap', maxWidth: 1200, margin: '0 auto' }}>
       {/* Left side */}
       <div
         style={{
@@ -78,20 +85,20 @@ const Login: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          paddingRight: 20,
+          paddingRight: 40,
         }}
       >
         <Title level={2} style={{ fontWeight: 'bold' }}>
-          Welcome back,
+          Chào mừng trở lại,
         </Title>
         <Text>
-          Launch your website in seconds. Don’t have an account?{' '}
-          <Link href="/signup">Sign up.</Link>
+          Khởi chạy website của bạn trong vài giây. Chưa có tài khoản?{' '}
+          <Link href="/signup">Đăng ký ngay.</Link>
         </Text>
         <img
           src="https://cdn3d.iconscout.com/3d/premium/thumb/working-employee-at-home-3d-illustration-download-in-png-blend-fbx-gltf-file-formats--on-laptop-work-from-man-businessman-character-pack-people-illustrations-3864094.png"
           alt="Illustration"
-          style={{ width: 500, maxWidth: '100%', marginTop: 24 }}
+          style={{ width: '100%', maxWidth: 500, marginTop: 24 }}
         />
       </div>
 
@@ -100,15 +107,14 @@ const Login: React.FC = () => {
         style={{
           flex: 1,
           minWidth: 300,
-          maxWidth: 500,
-          margin: 'auto',
+          maxWidth: 400,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
         }}
       >
         <Title level={4} style={{ textAlign: 'center', marginBottom: 24 }}>
-          Login for Internships
+          Đăng nhập hệ thống
         </Title>
 
         <Form
@@ -119,17 +125,17 @@ const Login: React.FC = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
+            rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}
           >
             <Input placeholder="example@example.com" />
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label="Mật khẩu"
             name="password"
-            rules={[{ required: true, min: 8, message: 'At least 8 alphanumeric characters' }]}
+            rules={[{ required: true, min: 8, message: 'Ít nhất 8 ký tự' }]}
           >
-            <Input.Password placeholder="At least 8 alphanumeric characters" />
+            <Input.Password placeholder="Ít nhất 8 ký tự" />
           </Form.Item>
 
           <div
@@ -141,22 +147,31 @@ const Login: React.FC = () => {
             }}
           >
             <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>Remember me</Checkbox>
+              <Checkbox>Ghi nhớ đăng nhập</Checkbox>
             </Form.Item>
-            <Link href="#">Forgot Password?</Link>
+            <Link href="#">Quên mật khẩu?</Link>
           </div>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={loading}>
-              Login
+              Đăng nhập
+            </Button>
+          </Form.Item>
+
+          <Form.Item>
+            <Button 
+              type="default" 
+              block 
+              loading={adminLoading}
+              onClick={onAdminLogin}
+            >
+              Đăng nhập với tư cách Admin
             </Button>
           </Form.Item>
         </Form>
-
-        <Text type="secondary" style={{ textAlign: 'center', display: 'block' }}>
-          Don’t have an account? <Link href="/signup">Sign up</Link>
+        <Text type="secondary" style={{ textAlign: 'center', display: 'block', marginTop: 16 }}>
+          Chưa có tài khoản? <Link href="/signup">Đăng ký ngay</Link>
         </Text>
-
       </div>
     </div>
   );

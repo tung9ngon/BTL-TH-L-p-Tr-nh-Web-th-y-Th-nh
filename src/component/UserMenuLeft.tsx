@@ -87,7 +87,7 @@ const UserMenuLeft: React.FC<UserMenuLeftProps> = ({ collapsed }) => {
           block 
           style={{ textAlign: 'left', height: 'auto', padding: collapsed ? '8px 0' : '8px 16px' }}
           onClick={() => {
-            // Add your logout logic here
+            navigate('/login');
             console.log('Logout clicked');
           }}
         >

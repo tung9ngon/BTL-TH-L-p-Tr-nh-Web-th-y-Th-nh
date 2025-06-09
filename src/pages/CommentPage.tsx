@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, List, Form, Input, Button, Rate, Typography, message, Layout, Menu, Avatar, Badge, Dropdown, Space, Statistic, Spin } from 'antd';
-import { UserOutlined, CommentOutlined, HomeOutlined, ReadOutlined, StarFilled, InfoCircleOutlined, BellOutlined } from '@ant-design/icons';
+import { UserOutlined, CommentOutlined, HomeOutlined, ReadOutlined, StarFilled, InfoCircleOutlined, BellOutlined, ProfileOutlined, BarChartOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -130,6 +130,24 @@ const CommentPage: React.FC = () => {
       minute: '2-digit'
     });
   };
+    const userMenu = (
+    <Menu>
+      <Menu.Item
+        key="profile"
+        icon={<ProfileOutlined />}
+        onClick={() => navigate('/profile')}
+      >
+        Xem thông tin cá nhân
+      </Menu.Item>
+      <Menu.Item key="bill" icon={<BarChartOutlined />} onClick={() => navigate('/payment')}>
+        Lịch sử giao dịch
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="logout" icon={<LogoutOutlined />} danger onClick={() => navigate('/login')}>
+        Đăng xuất
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -142,7 +160,7 @@ const CommentPage: React.FC = () => {
         height: 64,
         lineHeight: '64px',
         }}>
-        <div style={{ fontWeight: 'bold', fontSize: 24, color: '#1890ff', marginRight: 24 }}>
+        <div style={{ fontWeight: 'bold', fontSize: 20, color: '#1890ff', marginRight: 24 }}>
           Football Booking
         </div>
         <Menu 
@@ -151,15 +169,11 @@ const CommentPage: React.FC = () => {
           style={{ flex: 1, borderBottom: 'none' }}
         >
           <Menu.Item key="home" icon={<HomeOutlined />} onClick={() => navigate('/home')}>Trang chủ</Menu.Item>
-          <Menu.Item key="news" icon={<ReadOutlined />}>Tin tức</Menu.Item>
+          <Menu.Item key="news" icon={<ReadOutlined />} onClick={()=> navigate('/news')}>Tin tức</Menu.Item>
           <Menu.Item key="reviews" icon={<StarFilled />} onClick={() => navigate('/comments')}>Đánh giá</Menu.Item>
-          <Menu.Item key="about" icon={<InfoCircleOutlined />}>Giới thiệu</Menu.Item>
         </Menu>
         <Space size="middle">
-          <Badge count={3}>
-            <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
-          </Badge>
-          <Dropdown overlay={<div />} trigger={['click']}>
+          <Dropdown overlay={userMenu} trigger={['click']}>
             <Avatar 
               icon={<UserOutlined />} 
               style={{ cursor: 'pointer' }}

@@ -57,7 +57,7 @@ const MenuLeft: React.FC = () => {
           {/* <Menu.Item key="5" icon={<SettingOutlined />} onClick={() => navigate("/admin/settings")}>
             Cài đặt
           </Menu.Item> */}
-          <Menu.Item key="6" icon={<LogoutOutlined />} onClick={handleLogout}>
+          <Menu.Item key="6" icon={<LogoutOutlined />} danger onClick={handleLogout}>
             Đăng xuất
           </Menu.Item>
         </Menu>

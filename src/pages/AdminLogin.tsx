@@ -72,8 +72,8 @@ const AdminLogin: React.FC = () => {
   return (
     <div
       style={{
-        height: '100%',
-        width: '100%',
+        height: '91vh',
+        width: '300',
         background: `url('https://thumbs.dreamstime.com/b/landscape-nature-view-background-view-window-landscape-nature-view-background-view-window-wonderful-landscape-121459679.jpg') no-repeat center center`,
         backgroundSize: 'cover',
         display: 'flex',
@@ -152,6 +152,11 @@ const AdminLogin: React.FC = () => {
               </Button>
             </Form.Item>
           </Form>
+          <div style={{ marginTop: 24, textAlign: 'center' }}>
+            <Link href="/login" style={{ color: '#666' }}>
+              Quay lại trang đăng nhập người dùng
+            </Link>
+          </div>
         </div>
       </Card>
     </div>

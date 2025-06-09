@@ -16,6 +16,7 @@ import ContentPage from './pages/ContentPage';
 import ContactPage from './pages/ContactPage';
 import PaymentPage from './pages/PaymentPage';
 import ProfilePage from './pages/ProfilePage';
+import NewsPage from './pages/NewsPage';
 
 import DashBoard from './pages/DashBoard';
 const { Header, Content, Footer } = Layout;
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/news" element={<NewsPage />} />
             
           </Routes>
         </Content>

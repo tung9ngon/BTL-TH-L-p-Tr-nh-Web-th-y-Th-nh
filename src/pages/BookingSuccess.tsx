@@ -128,80 +128,95 @@ const BookingSuccess: React.FC = () => {
         </Space>
       </Card>
 
-      {/* QR Code Modal */}
-      <Modal
-        title="Thanh toán bằng QR Code"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-        closeIcon={<CloseOutlined style={{ fontSize: '20px' }} />}
-        width={800}
-        centered
-      >
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Countdown
-            title="Thời gian còn lại"
-            value={deadline}
-            format="mm:ss"
-            valueStyle={{ color: '#ff4d4f', fontSize: 24 }}
-          />
-          <p style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
-            Hiệu lực mã QR sẽ hết hạn sau 5 phút
-          </p>
-        </div>
+{/* QR Code Modal */}
+<Modal
+  title="Thanh toán bằng QR Code"
+  visible={isModalVisible}
+  onCancel={handleCancel}
+  footer={[
+    <Button 
+      key="home" 
+      onClick={() => navigate('/home')}
+      style={{ marginRight: 8 }}
+    >
+      Quay về trang chủ
+    </Button>,
+    <Button 
+      key="history"
+      type="primary" 
+      onClick={() => navigate('/payment')}
+    >
+      Chuyển đến trang lịch sử giao dịch
+    </Button>
+  ]}
+  closeIcon={<CloseOutlined style={{ fontSize: '20px' }} />}
+  width={800}
+  centered
+>
+  <div style={{ textAlign: 'center', marginBottom: 24 }}>
+    <Countdown
+      title="Thời gian còn lại"
+      value={deadline}
+      format="mm:ss"
+      valueStyle={{ color: '#ff4d4f', fontSize: 24 }}
+    />
+    <p style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+      Hiệu lực mã QR sẽ hết hạn sau 5 phút
+    </p>
+  </div>
 
-        <Row gutter={24}>
-          <Col span={12}>
-            <div style={{ 
-              padding: '16px', 
-              border: '1px solid #d9d9d9', 
-              borderRadius: '8px',
-              marginBottom: '16px'
-            }}>
-              <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ViettinBank|Do Trung Thanh|1234567890" 
-                alt="ViettinBank QR" 
-                style={{ width: '100%', maxWidth: '300px' }}
-              />
-              <div style={{ marginTop: '16px' }}>
-                <p><strong>Ngân hàng:</strong> ViettinBank</p>
-                <p><strong>Chủ tài khoản:</strong> Đỗ Trung Thành</p>
-                <p><strong>Số tài khoản:</strong> 1234567890</p>
-              </div>
-            </div>
-          </Col>
-          <Col span={12}>
-            <div style={{ 
-              padding: '16px', 
-              border: '1px solid #d9d9d9', 
-              borderRadius: '8px',
-              marginBottom: '16px'
-            }}>
-              <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Vietcombank|Nguyen Viet Anh|0987654321" 
-                alt="Vietcombank QR" 
-                style={{ width: '100%', maxWidth: '300px' }}
-              />
-              <div style={{ marginTop: '16px' }}>
-                <p><strong>Ngân hàng:</strong> Vietcombank</p>
-                <p><strong>Chủ tài khoản:</strong> Nguyễn Việt Anh</p>
-                <p><strong>Số tài khoản:</strong> 0987654321</p>
-              </div>
-            </div>
-          </Col>
-        </Row>
-
-        <div style={{ 
-          background: '#fff2f0', 
-          padding: '12px', 
-          borderRadius: '6px',
-          textAlign: 'center'
-        }}>
-          <p style={{ color: '#ff4d4f', margin: 0 }}>
-            ⚠️ Vui lòng thanh toán trong thời gian hiệu lực của mã QR
-          </p>
+  <Row gutter={24}>
+    <Col span={12}>
+      <div style={{ 
+        padding: '16px', 
+        border: '1px solid #d9d9d9', 
+        borderRadius: '8px',
+        marginBottom: '16px'
+      }}>
+        <img 
+          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ViettinBank|Do Trung Thanh|1234567890" 
+          alt="ViettinBank QR" 
+          style={{ width: '100%', maxWidth: '300px' }}
+        />
+        <div style={{ marginTop: '16px' }}>
+          <p><strong>Ngân hàng:</strong> ViettinBank</p>
+          <p><strong>Chủ tài khoản:</strong> Đỗ Trung Thành</p>
+          <p><strong>Số tài khoản:</strong> 1234567890</p>
         </div>
-      </Modal>
+      </div>
+    </Col>
+    <Col span={12}>
+      <div style={{ 
+        padding: '16px', 
+        border: '1px solid #d9d9d9', 
+        borderRadius: '8px',
+        marginBottom: '16px'
+      }}>
+        <img 
+          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Vietcombank|Nguyen Viet Anh|0987654321" 
+          alt="Vietcombank QR" 
+          style={{ width: '100%', maxWidth: '300px' }}
+        />
+        <div style={{ marginTop: '16px' }}>
+          <p><strong>Ngân hàng:</strong> Vietcombank</p>
+          <p><strong>Chủ tài khoản:</strong> Nguyễn Việt Anh</p>
+          <p><strong>Số tài khoản:</strong> 0987654321</p>
+        </div>
+      </div>
+    </Col>
+  </Row>
+
+  <div style={{ 
+    background: '#fff2f0', 
+    padding: '12px', 
+    borderRadius: '6px',
+    textAlign: 'center'
+  }}>
+    <p style={{ color: '#ff4d4f', margin: 0 }}>
+      ⚠️ Vui lòng thanh toán trong thời gian hiệu lực của mã QR
+    </p>
+  </div>
+</Modal>
       
       {/* Thêm CSS animation */}
       <style>
