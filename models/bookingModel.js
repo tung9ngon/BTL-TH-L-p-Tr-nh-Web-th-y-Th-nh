@@ -463,6 +463,7 @@ module.exports = {
 getRecentBookings: async (ownerId, limit = 10) => {
   const connection = await db.getConnection();
   try {
+    // Sử dụng giá trị LIMIT cố định thay vì parameter
     const [bookings] = await connection.execute(
       `SELECT b.*, p.name as pitch_name, p.location,
               ts.start_time, ts.end_time, u.name as user_name, u.phone as user_phone,
@@ -474,10 +475,12 @@ getRecentBookings: async (ownerId, limit = 10) => {
        JOIN users u ON b.user_id = u.id
        WHERE p.owner_id = ?
        ORDER BY b.created_at DESC
-       LIMIT ?`,
-      [ownerId, limit]
+       LIMIT 50`,
+      [ownerId]
     );
-    return bookings;
+    
+    // Nếu cần limit nhỏ hơn, cắt trong JavaScript
+    return limit < 50 ? bookings.slice(0, limit) : bookings;
   } finally {
     connection.release();
   }
@@ -560,15 +563,15 @@ getTopRevenePitches: async (ownerId, limit = 5) => {
        GROUP BY p.id, p.name, p.location, p.price_per_hour
        HAVING total_revenue > 0
        ORDER BY total_revenue DESC
-       LIMIT ?`,
-      [ownerId, limit]
+       LIMIT 20`,
+      [ownerId]
     );
-    return topPitches;
+    
+    return limit < 20 ? topPitches.slice(0, limit) : topPitches;
   } finally {
     connection.release();
   }
 },
-
 // Lấy booking theo ngày (hôm nay, tuần này, tháng này)
 getBookingsByPeriod: async (ownerId) => {
   const connection = await db.getConnection();
